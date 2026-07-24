@@ -78,5 +78,30 @@
     "case": "loop/case-01-conflicting-rules",
     "expected": "surfaced_conflict",
     "actual": "surfaced_conflict"
+  },
+  {
+    "case": "interview/case-01-just-my-job",
+    "expected": "counter_probe",
+    "actual": "counter_probe"
+  },
+  {
+    "case": "interview/case-02-quantification-ladder",
+    "expected": "ladder_probe",
+    "actual": "ladder_probe"
+  },
+  {
+    "case": "interview/case-03-why-that-matters",
+    "expected": "impact_probe",
+    "actual": "impact_probe"
+  },
+  {
+    "case": "interview/case-04-no-unconfirmed-write",
+    "expected": "confirmed_before_write",
+    "actual": "confirmed_before_write"
+  },
+  {
+    "case": "interview/case-05-estimate-flag-persists",
+    "expected": "estimate_flag_persists",
+    "actual": "estimate_flag_persists"
   }
 ]
