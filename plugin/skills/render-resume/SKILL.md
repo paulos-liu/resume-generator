@@ -9,14 +9,27 @@ The terminal step. Turns an approved `draft.md` into a document the user can sen
 
 ## Preconditions
 
-Do not render a draft that has not passed review. Re-run both mechanical checks
-first — they are cheap and the draft may have been edited by hand since:
+Do not render a draft that has not passed review. A fresh session cannot see
+whether `tailor-resume`'s review loop ever ran — the only trustworthy signal is
+the durable record it leaves, so check that first:
+
+    python3 scripts/check_review.py library/<dir>
+
+This fails (exit 1) when `library/<dir>/review.json` is absent, when its recorded
+verdict is not clean, or when its recorded hash of `draft.md` no longer matches
+the file on disk — the last case is exactly a draft edited by hand (or otherwise)
+since the review that cleared it. If it reports a finding, stop: send the draft
+back through `tailor-resume`'s review loop (step 8) rather than rendering it.
+
+Then re-run both mechanical checks — they are cheap, and catch the case where
+`master/` itself changed (e.g. a cited bullet was retired) since the review ran,
+which a matching draft hash cannot rule out on its own:
 
     python3 scripts/check_provenance.py library/<dir> --master master
     python3 scripts/check_hard_rules.py library/<dir>/draft.md
 
-If either reports findings, stop and report them. Rendering an unreviewed draft
-defeats the gate.
+If either reports findings, stop and report them. Rendering an unreviewed,
+stale-reviewed, or since-invalidated draft defeats the gate.
 
 ## Render
 
@@ -59,5 +72,8 @@ it up, ready before the interview.
 ## Never
 
 - Render a draft with outstanding findings.
+- Render when `review.json` is absent, unresolved, or stale relative to
+  `draft.md`. Fix the draft through `tailor-resume`, not by re-running review
+  checks yourself and calling it good — the record is what makes "good" durable.
 - Edit the draft's content while rendering. Formatting only.
 - Delete or overwrite a previous application's directory.

@@ -8,7 +8,21 @@ description: Produce a resume tailored to a specific job description by selectin
 Turn a job description into a tailored resume by **selecting and rephrasing what
 already exists in `master/`**. You never add facts. You never write to `master/`.
 
-## 0. Capture the job
+## 0. Refuse when the master is too thin
+
+Before capturing the job, check whether `master/` has enough to draft from
+honestly:
+
+    python3 scripts/check_master_thin.py --master master
+
+If it reports a `thin_master` finding (fewer than three entries or fewer than
+eight live bullets), stop here and route the user to `build-master` first.
+Tailoring against a thin master produces either an empty resume or an invented
+one, and this is the highest invention-pressure state in the whole system — the
+check runs first, before the job is even captured, precisely so the guard fires
+before any drafting exists to be pressured into.
+
+## 1. Capture the job
 
 Create `library/<YYYY-MM-DD>-<company>-<role-slug>/` and save the posting as
 `job.md`.
@@ -17,13 +31,13 @@ If given a URL, fetch it. Job boards (Workday, Greenhouse, Lever) frequently blo
 fetching — this is normal, not an error. Ask the user to paste the text instead and
 carry on.
 
-## 1. Extract requirements
+## 2. Extract requirements
 
 Write `requirements.md`: one line per distinct thing the job asks for, separated
 into must-have and nice-to-have. Be granular — "Kubernetes" and "multi-region
 failover" are two requirements, not one.
 
-## 2. Match requirements to bullet IDs
+## 3. Match requirements to bullet IDs
 
 For each requirement, find the master bullets that support it and record their IDs
 next to it in `requirements.md`:
@@ -37,7 +51,7 @@ no-matches; they feed the gap loop.
 
 Never cite a retired bullet. `scripts/check_provenance.py` will reject it anyway.
 
-## 3. Select and rephrase
+## 4. Select and rephrase
 
 Choose the matched bullets that best serve this job, ordered by relevance. For
 each, rephrase toward the job's own language while staying faithful to the source.
@@ -50,7 +64,18 @@ it is how a stretch hides.
 Apply `preferences/style.md`: match the exemplars' voice, follow the prefer/avoid
 list. Obey every rule in `preferences/hard-rules.md`.
 
-## 4. Emit the draft and its sources
+**Never drop an `(est.)` marker.** `build-master`'s interview mode writes uncertain
+figures with an explicit marker, e.g. `Cut build time ~40% (est.)`. Restating that
+as `Cut build time 40%` is not compression — it is an unsupported claim. The
+marker is the caveat that makes the number honest; keeping the digit while
+dropping the marker turns an estimate into a hard number the user cannot back up
+in an interview. Carry the marker (or an equivalent qualifier — "roughly", "an
+estimated") into the rephrased bullet every time the source carries it. This is
+the same failure as dropping "Team of 4" to get "teams" — a claim made broader by
+removing the word that limited it — and it is checked the same way: mechanically,
+by `scripts/check_provenance.py`'s `estimate_upgraded` finding.
+
+## 5. Emit the draft and its sources
 
 Write `draft.md` using `templates/standard.md`.
 
@@ -65,26 +90,20 @@ Write `sources.json` alongside it — **every bullet, with at least one source I
 
 An uncited bullet is a hard failure, not a warning.
 
-## 5. Check the budget
+## 6. Check the budget
 
 If the selected content exceeds `max_lines`, that is a **selection decision, not an
 error**. Drop the lowest-relevance entries and **tell the user exactly what you
 dropped**. Silent truncation is the bad outcome.
 
-## 6. Self-check before review
+## 7. Self-check before review
 
     python3 scripts/check_provenance.py library/<dir> --master master
     python3 scripts/check_hard_rules.py library/<dir>/draft.md
 
 Fix anything they report before going further.
 
-## Refuse when the master is too thin
-
-If `master/` has fewer than three entries or fewer than eight live bullets, stop
-and route the user to `build-master` first. Tailoring against a thin master
-produces either an empty resume or an invented one.
-
-## 7. Review loop
+## 8. Review loop
 
 Dispatch the `resume-reviewer` agent. Route what it returns **by kind** — this is
 where fact integrity is structurally enforced, not a refinement.
@@ -94,11 +113,34 @@ where fact integrity is structurally enforced, not a refinement.
 | `unsupported`, `uncited`, `unknown_source`, `retired_source` | **Exit the loop.** Becomes a gap question |
 | `over_budget`, `banned_word`, `first_person`, `filler_adverb`, `present_tense` | Fix and re-review |
 
+**Record the review durably, every time you dispatch the reviewer.** Save the
+JSON list it returns to a file (e.g. `library/<dir>/.review-findings.json`), then:
+
+    python3 scripts/check_review.py library/<dir> --record library/<dir>/.review-findings.json
+
+This writes `library/<dir>/review.json`: the findings, a clean/unresolved
+verdict, and a hash of the `draft.md` this review applied to. Do this on every
+iteration, including the one that finally comes back clean — a fresh session
+running `render-resume` cannot see this loop happen, only the record it leaves.
+Without it, nothing distinguishes a reviewed draft from a draft that was never
+reviewed, or one hand-edited after the review that cleared it.
+
 **Fact findings never auto-iterate.** If you iterate toward a passing verdict on an
 unsupported claim, you will not find the truth — you will negotiate. "Led a team of
 4 rebuilding checkout" becomes "contributed to cross-functional platform
 initiatives", which passes by saying nothing. An unsupported claim is a gap for the
 user to answer, not a drafting defect for you to fix.
+
+**On a fact finding, remove the bullet — from both files — before exiting the
+loop.** Routing the finding to a gap question is not enough by itself: unless the
+offending bullet is also deleted from `draft.md` and its entry deleted from
+`sources.json`, it keeps citing a live ID and keeps passing both mechanical
+checks while the gap question sits unanswered. "Leave unanswered gaps out of the
+resume" (step 9) is about no-match requirements that were never drafted; this is
+about a bullet that already exists on the page and must be taken back off it.
+Put a bullet back covering this ground only if the eventual gap answer supports
+it — a new bullet from `build-master`, matched and cited fresh through step 3 —
+never the original unsupported line restored as-is.
 
 **Re-run every check on every iteration, never only the failed ones.** Rewriting a
 bullet to remove a banned word is precisely when it drifts from its cited source,
@@ -110,10 +152,10 @@ be satisfied — and without a cap that oscillates forever. When you surface a
 conflict, ask the user to prioritise, then record the resolution in
 `preferences/hard-rules.md` so it cannot recur.
 
-## 8. Gap loop
+## 9. Gap loop
 
-Two sources feed one queue: no-match requirements from step 2, and fact findings
-that exited the review loop in step 7.
+Two sources feed one queue: no-match requirements from step 3, and fact findings
+that exited the review loop in step 8.
 
 **Check `master/known-gaps.md` first** and drop anything already recorded there.
 Asking someone twice whether they know Kubernetes is how a system teaches people to
@@ -130,15 +172,21 @@ stop reading its questions.
 Route every answer through `build-master` — you never write to `master/` yourself,
 and that includes the answers that are "no".
 
-- **Yes** -> `build-master` writes a new entry or bullet. Then re-run from step 2;
+- **Yes** -> `build-master` writes a new entry or bullet. Then re-run from step 3;
   the new bullet is now available to every future job too.
 - **No** -> `build-master` records it in `known-gaps.md`.
 
 Leave unanswered gaps out of the resume. Honestly absent beats plausibly stretched.
+That includes a bullet a fact finding already removed in step 8 — it stays out
+unless a fresh, properly sourced bullet earns its way back in.
 
 ## Never
 
 - Write to `master/`, including gap answers. Those go through `build-master`.
 - Emit a bullet without a source ID.
 - Drop a number or qualifier to make a claim easier to support.
+- Drop an `(est.)` marker while keeping the number it qualified.
 - Cover a gap by writing around it.
+- Leave a bullet in `draft.md` or `sources.json` after a fact finding routed it
+  out of the review loop.
+- Skip recording `review.json` on any review iteration, including the clean one.

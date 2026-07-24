@@ -42,11 +42,17 @@ Ruling unsupported:
 - Any claim that drops a qualifier to become broader. Vaguer is not safer.
 - Any claim assembled from two sources that neither one makes alone.
 - Any adjacent-but-different technology. An ECS migration is not Kubernetes.
+- Any estimate restated as a hard number. If the cited source carries an
+  `(est.)` marker — e.g. `Cut build time ~40% (est.)` — and the draft states the
+  same figure without it, that is not a unit change or compression, it is the
+  qualifier that made the number honest getting dropped. "Cut build time 40%"
+  is not supported by a source that only ever estimated it.
 
 Ruling supported:
 
-- Compression, reordering, and unit changes that preserve the claim.
-  "340ms to 90ms" supports "73% reduction".
+- Compression, reordering, and unit changes that preserve the claim, including
+  any `(est.)` marker the source carries. "340ms to 90ms" supports "73%
+  reduction"; "~40% (est.)" supports "roughly 40%" but not "40%".
 - Adopting the job's vocabulary for the same underlying fact.
 
 ## 3. Return findings
