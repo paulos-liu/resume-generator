@@ -1,0 +1,12 @@
+[
+  {
+    "case": "invention/case-01-kubernetes",
+    "expected": "gap_question",
+    "actual": "gap_question"
+  },
+  {
+    "case": "invention/case-02-team-size",
+    "expected": "gap_question",
+    "actual": "gap_question"
+  }
+]
