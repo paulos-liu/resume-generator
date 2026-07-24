@@ -16,7 +16,10 @@ class TestLoadEntries(unittest.TestCase):
 
     def test_finds_entries_in_all_subdirs(self):
         ids = {e.id for e in load_entries(FIXTURES)}
-        self.assertEqual(ids, {"role.northwind.staff-eng", "project.ndjson-stream"})
+        self.assertEqual(
+            ids,
+            {"role.northwind.staff-eng", "project.ndjson-stream", "role.harbor.data-eng"},
+        )
 
 
 class TestLoadBullets(unittest.TestCase):
@@ -27,7 +30,7 @@ class TestLoadBullets(unittest.TestCase):
 
     def test_joins_wrapped_continuation_lines(self):
         bullets = load_bullets(FIXTURES)
-        self.assertIn("Shipped Q3 2022.", bullets["nw.b1"].text)
+        self.assertIn("re-architecting the cart service", bullets["nw.b1"].text)
         self.assertNotIn("\n", bullets["nw.b1"].text)
 
     def test_marks_retired_bullets(self):

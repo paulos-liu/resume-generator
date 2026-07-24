@@ -244,5 +244,22 @@ class TestTimelineCoverage(unittest.TestCase):
         self.assertEqual(cov.undated, [])
 
 
+FIXTURE_MASTER = Path(__file__).parent / "fixtures" / "master"
+
+
+class TestScanOverTheFixtureMaster(unittest.TestCase):
+    def test_northwind_has_an_unmined_year_and_an_undated_bullet(self):
+        cov = scan(FIXTURE_MASTER)
+        northwind = [e for e in cov.entries if e.id == "role.northwind.staff-eng"][0]
+        self.assertEqual([yc.year for yc in northwind.years if yc.unmined], [2024])
+        self.assertEqual(northwind.undated, ["nw.b5"])
+
+    def test_harbor_quiet_year_is_not_unmined(self):
+        cov = scan(FIXTURE_MASTER)
+        harbor = [e for e in cov.entries if e.id == "role.harbor.data-eng"][0]
+        self.assertEqual([yc.year for yc in harbor.years if yc.unmined], [])
+        self.assertTrue([yc for yc in harbor.years if yc.year == 2019][0].quiet)
+
+
 if __name__ == "__main__":
     unittest.main()
