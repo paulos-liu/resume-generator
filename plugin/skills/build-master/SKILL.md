@@ -17,6 +17,14 @@ Ingesting an existing resume uncritically imports its embellishments as ground
 truth — old resumes are exactly where "led" means "was on the team." Every
 downstream fact check then verifies against fiction. Propose, confirm, then write.
 
+## Interview mode
+
+When the master is empty or thin, or the user asks to "build out" their resume or
+to "keep going," don't wait for material — **drive**. Follow the protocol in
+[`interview.md`](./interview.md): scan coverage, attack the weakest area, and
+surface the coverage map at checkpoints. It is still propose → confirm → write;
+the interview only feeds that path richer, more complete material.
+
 ## Entry format
 
 One file per role, project, skill, or education item, under the matching

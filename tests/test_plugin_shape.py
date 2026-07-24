@@ -26,5 +26,14 @@ class TestPluginShape(unittest.TestCase):
         self.assertEqual(findings, [], "\n".join(f"{f.kind}: {f.detail}" for f in findings))
 
 
+class TestInterviewWiring(unittest.TestCase):
+    def test_interview_protocol_file_exists(self):
+        self.assertTrue((PLUGIN / "skills" / "build-master" / "interview.md").exists())
+
+    def test_skill_points_at_the_interview_protocol(self):
+        skill = (PLUGIN / "skills" / "build-master" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("interview.md", skill)
+
+
 if __name__ == "__main__":
     unittest.main()
