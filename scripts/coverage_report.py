@@ -16,6 +16,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from resumelib.coverage import Coverage, scan  # noqa: E402
 
 
+BAR_WIDTH = 8
+
+
+def _bar(count: int, width: int = BAR_WIDTH) -> str:
+    """Visual weight, not a precise scale -- the marker is what gets acted on."""
+    filled = min(count, width)
+    return "#" * filled + "." * (width - filled)
+
+
 def render(coverage: Coverage) -> str:
     lines = ["MASTER COVERAGE", "", "Roles & projects"]
     if not coverage.entries:
@@ -26,6 +35,19 @@ def render(coverage: Coverage) -> str:
             note += f", {len(ec.unquantified)} unquantified"
         marker = "  <- thin" if ec.thin else ""
         lines.append(f"  {ec.label}: {note}{marker}")
+        for yc in ec.years:
+            suffix = ""
+            if yc.quiet:
+                suffix = "  <- declared quiet"
+            elif yc.unmined:
+                suffix = "  <- nothing recorded"
+            lines.append(f"    {yc.year} {_bar(yc.bullet_count)}  "
+                         f"{yc.bullet_count} bullet(s){suffix}")
+        if ec.undated:
+            lines.append(f"    {len(ec.undated)} undated bullet(s): "
+                         + ", ".join(ec.undated))
+        for bullet_id, period in ec.out_of_range:
+            lines.append(f"    {bullet_id} dated {period}, outside this entry's tenure")
     if coverage.gaps:
         lines += ["", "Timeline gaps"]
         lines += [f"  {prev_end} -> {next_start}: no role recorded"
