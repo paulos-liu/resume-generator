@@ -84,6 +84,32 @@ If `master/` has fewer than three entries or fewer than eight live bullets, stop
 and route the user to `build-master` first. Tailoring against a thin master
 produces either an empty resume or an invented one.
 
+## 7. Review loop
+
+Dispatch the `resume-reviewer` agent. Route what it returns **by kind** — this is
+where fact integrity is structurally enforced, not a refinement.
+
+| Finding kind | Route |
+|---|---|
+| `unsupported`, `uncited`, `unknown_source`, `retired_source` | **Exit the loop.** Becomes a gap question |
+| `over_budget`, `banned_word`, `first_person`, `filler_adverb`, `present_tense` | Fix and re-review |
+
+**Fact findings never auto-iterate.** If you iterate toward a passing verdict on an
+unsupported claim, you will not find the truth — you will negotiate. "Led a team of
+4 rebuilding checkout" becomes "contributed to cross-functional platform
+initiatives", which passes by saying nothing. An unsupported claim is a gap for the
+user to answer, not a drafting defect for you to fix.
+
+**Re-run every check on every iteration, never only the failed ones.** Rewriting a
+bullet to remove a banned word is precisely when it drifts from its cited source,
+so a style fix can break the fact check.
+
+**Cap at 3 iterations.** Then stop and surface whatever is unresolved. Two hard
+rules can genuinely conflict — "lead with metrics" and a 3-line budget cannot both
+be satisfied — and without a cap that oscillates forever. When you surface a
+conflict, ask the user to prioritise, then record the resolution in
+`preferences/hard-rules.md` so it cannot recur.
+
 ## Never
 
 - Write to `master/`, including gap answers. Those go through `build-master`.
