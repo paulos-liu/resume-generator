@@ -8,5 +8,65 @@
     "case": "invention/case-02-team-size",
     "expected": "gap_question",
     "actual": "gap_question"
+  },
+  {
+    "case": "faithfulness/case-01-latency-percent",
+    "expected": "supported",
+    "actual": "supported"
+  },
+  {
+    "case": "faithfulness/case-02-latency-scale",
+    "expected": "supported",
+    "actual": "supported"
+  },
+  {
+    "case": "faithfulness/case-03-team-of-4",
+    "expected": "supported",
+    "actual": "supported"
+  },
+  {
+    "case": "faithfulness/case-04-engineering-teams",
+    "expected": "unsupported",
+    "actual": "unsupported"
+  },
+  {
+    "case": "faithfulness/case-05-order-of-magnitude",
+    "expected": "unsupported",
+    "actual": "unsupported"
+  },
+  {
+    "case": "faithfulness/case-06-checkout-roadmap",
+    "expected": "unsupported",
+    "actual": "unsupported"
+  },
+  {
+    "case": "faithfulness/case-07-ecs-migration",
+    "expected": "supported",
+    "actual": "supported"
+  },
+  {
+    "case": "faithfulness/case-08-entire-fleet",
+    "expected": "unsupported",
+    "actual": "unsupported"
+  },
+  {
+    "case": "faithfulness/case-09-pr-to-deploy",
+    "expected": "supported",
+    "actual": "supported"
+  },
+  {
+    "case": "faithfulness/case-10-culture-org-wide",
+    "expected": "unsupported",
+    "actual": "unsupported"
+  },
+  {
+    "case": "faithfulness/case-11-ndjson-parser",
+    "expected": "supported",
+    "actual": "supported"
+  },
+  {
+    "case": "faithfulness/case-12-production-at-scale",
+    "expected": "unsupported",
+    "actual": "unsupported"
   }
 ]

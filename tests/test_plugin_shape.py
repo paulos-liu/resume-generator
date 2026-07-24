@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN = ROOT / "plugin"
 
 REQUIRED_SKILLS = ["build-master", "setup", "tailor-resume"]
-REQUIRED_AGENTS = []
+REQUIRED_AGENTS = ["resume-reviewer"]
 
 
 class TestPluginShape(unittest.TestCase):
