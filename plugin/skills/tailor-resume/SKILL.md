@@ -8,7 +8,21 @@ description: Produce a resume tailored to a specific job description by selectin
 Turn a job description into a tailored resume by **selecting and rephrasing what
 already exists in `master/`**. You never add facts. You never write to `master/`.
 
-## 0. Capture the job
+## 0. Refuse when the master is too thin
+
+Before capturing the job, check whether `master/` has enough to draft from
+honestly:
+
+    python3 scripts/check_master_thin.py --master master
+
+If it reports a `thin_master` finding (fewer than three entries or fewer than
+eight live bullets), stop here and route the user to `build-master` first.
+Tailoring against a thin master produces either an empty resume or an invented
+one, and this is the highest invention-pressure state in the whole system — the
+check runs first, before the job is even captured, precisely so the guard fires
+before any drafting exists to be pressured into.
+
+## 1. Capture the job
 
 Create `library/<YYYY-MM-DD>-<company>-<role-slug>/` and save the posting as
 `job.md`.
@@ -17,13 +31,13 @@ If given a URL, fetch it. Job boards (Workday, Greenhouse, Lever) frequently blo
 fetching — this is normal, not an error. Ask the user to paste the text instead and
 carry on.
 
-## 1. Extract requirements
+## 2. Extract requirements
 
 Write `requirements.md`: one line per distinct thing the job asks for, separated
 into must-have and nice-to-have. Be granular — "Kubernetes" and "multi-region
 failover" are two requirements, not one.
 
-## 2. Match requirements to bullet IDs
+## 3. Match requirements to bullet IDs
 
 For each requirement, find the master bullets that support it and record their IDs
 next to it in `requirements.md`:
@@ -37,7 +51,7 @@ no-matches; they feed the gap loop.
 
 Never cite a retired bullet. `scripts/check_provenance.py` will reject it anyway.
 
-## 3. Select and rephrase
+## 4. Select and rephrase
 
 Choose the matched bullets that best serve this job, ordered by relevance. For
 each, rephrase toward the job's own language while staying faithful to the source.
@@ -50,7 +64,18 @@ it is how a stretch hides.
 Apply `preferences/style.md`: match the exemplars' voice, follow the prefer/avoid
 list. Obey every rule in `preferences/hard-rules.md`.
 
-## 4. Emit the draft and its sources
+**Never drop an `(est.)` marker.** `build-master`'s interview mode writes uncertain
+figures with an explicit marker, e.g. `Cut build time ~40% (est.)`. Restating that
+as `Cut build time 40%` is not compression — it is an unsupported claim. The
+marker is the caveat that makes the number honest; keeping the digit while
+dropping the marker turns an estimate into a hard number the user cannot back up
+in an interview. Carry the marker (or an equivalent qualifier — "roughly", "an
+estimated") into the rephrased bullet every time the source carries it. This is
+the same failure as dropping "Team of 4" to get "teams" — a claim made broader by
+removing the word that limited it — and it is checked the same way: mechanically,
+by `scripts/check_provenance.py`'s `estimate_upgraded` finding.
+
+## 5. Emit the draft and its sources
 
 Write `draft.md` using `templates/standard.md`.
 
@@ -65,26 +90,20 @@ Write `sources.json` alongside it — **every bullet, with at least one source I
 
 An uncited bullet is a hard failure, not a warning.
 
-## 5. Check the budget
+## 6. Check the budget
 
 If the selected content exceeds `max_lines`, that is a **selection decision, not an
 error**. Drop the lowest-relevance entries and **tell the user exactly what you
 dropped**. Silent truncation is the bad outcome.
 
-## 6. Self-check before review
+## 7. Self-check before review
 
     python3 scripts/check_provenance.py library/<dir> --master master
     python3 scripts/check_hard_rules.py library/<dir>/draft.md
 
 Fix anything they report before going further.
 
-## Refuse when the master is too thin
-
-If `master/` has fewer than three entries or fewer than eight live bullets, stop
-and route the user to `build-master` first. Tailoring against a thin master
-produces either an empty resume or an invented one.
-
-## 7. Review loop
+## 8. Review loop
 
 Dispatch the `resume-reviewer` agent. Route what it returns **by kind** — this is
 where fact integrity is structurally enforced, not a refinement.
