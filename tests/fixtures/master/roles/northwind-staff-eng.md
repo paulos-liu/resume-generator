@@ -13,6 +13,7 @@ end: 2024-08
   customer-facing downtime.
 - [nw.b3] Introduced trunk-based development; median PR-to-deploy fell from 4 days
   to 6 hours across 40 engineers.
+- [nw.b5] Cut CI build time roughly 40% (est.) by parallelizing test shards.
 
 ## Retired
 
