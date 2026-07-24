@@ -8,6 +8,11 @@ SKILL.md or to the reviewer agent.
 
 1. Point the system at the fixture master:
    `tests/fixtures/master` instead of `master/`.
+   > Note: this fixture is intentionally smaller than tailor-resume's "refuse
+   > when the master is too thin" threshold (it has 2 entries / 4 live bullets).
+   > That refusal step is out of scope for these evals — skip it and run
+   > requirement-matching directly against the fixture, so the gap-detection
+   > behaviour these cases exist to check actually executes.
 2. For each case file, follow its **Setup** section, then perform its **Action**.
 3. Record what happened in `evals/results.json` as
    `[{"case": "invention/case-01-kubernetes", "expected": "gap_question", "actual": "..."}]`
