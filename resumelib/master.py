@@ -14,6 +14,10 @@ from pathlib import Path
 
 BULLET_RE = re.compile(r"^- \[([A-Za-z0-9._-]+)\]\s+(.*)$")
 RETIRED_HEADING_RE = re.compile(r"^##\s+Retired\s*$", re.IGNORECASE)
+# A leading (YYYY) or (YYYY-QN) is the bullet's period: metadata about when the
+# work happened, not part of the claim. Anchored so "(est.)" and other
+# mid-text parentheses are never touched.
+PERIOD_RE = re.compile(r"^\((\d{4}(?:-Q[1-4])?)\)\s+")
 
 
 @dataclass
@@ -21,6 +25,7 @@ class Bullet:
     id: str
     text: str
     retired: bool = False
+    period: str | None = None
 
 
 @dataclass
@@ -65,8 +70,14 @@ def _parse_bullets(body: str) -> list:
             continue
         match = BULLET_RE.match(line)
         if match:
-            bullets.append(Bullet(id=match.group(1), text=match.group(2).strip(),
-                                  retired=retired))
+            text = match.group(2).strip()
+            period = None
+            period_match = PERIOD_RE.match(text)
+            if period_match:
+                period = period_match.group(1)
+                text = text[period_match.end():].strip()
+            bullets.append(Bullet(id=match.group(1), text=text,
+                                  retired=retired, period=period))
         elif bullets and line.startswith("  ") and line.strip():
             # Continuation of the previous bullet's wrapped text.
             bullets[-1].text += " " + line.strip()
