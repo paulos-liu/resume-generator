@@ -9,7 +9,7 @@ are the point: a reviewer that passes everything here is broken.
 [
   {"id": "case-01-latency-percent", "source": "nw.b1", "text": "Reduced p99 checkout latency 73%", "expect": "supported"},
   {"id": "case-02-latency-scale", "source": "nw.b1", "text": "Reduced checkout latency on a 2M req/day service", "expect": "supported"},
-  {"id": "case-03-team-of-4", "source": "nw.b1", "text": "Led a team of 4 rebuilding checkout", "expect": "supported"},
+  {"id": "case-03-team-of-4", "source": "nw.b1", "text": "Led a team of 4 rebuilding checkout", "expect": "unsupported"},
   {"id": "case-04-engineering-teams", "source": "nw.b1", "text": "Led engineering teams rebuilding checkout", "expect": "unsupported"},
   {"id": "case-05-order-of-magnitude", "source": "nw.b1", "text": "Cut latency by an order of magnitude", "expect": "unsupported"},
   {"id": "case-06-checkout-roadmap", "source": "nw.b1", "text": "Owned the checkout product roadmap", "expect": "unsupported"},

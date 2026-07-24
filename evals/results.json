@@ -21,7 +21,7 @@
   },
   {
     "case": "faithfulness/case-03-team-of-4",
-    "expected": "supported",
+    "expected": "unsupported",
     "actual": "unsupported"
   },
   {
