@@ -71,8 +71,8 @@ For each confirmed fact, classify the write first:
 - Promotion at the same company -> **new role entry**, not an edit. Title, scope,
   and dates all differ, and bullets must stay attributable to the right level.
 
-Correction and retraction have their own flow — see the `update-master` section
-of this skill once Task 13 adds it.
+Correction and retraction have their own flow — see the `## Correct and retract`
+section of this skill.
 
 ## Commit
 
@@ -81,6 +81,37 @@ One commit per confirmed write. The message records what changed and why, becaus
 
     master: add nw.b7 — gap answer (Kubernetes, Stripe application)
     master: correct nw.b1 — team size 4->3, per user correction
+
+## Correct and retract
+
+Classify first — these are three different writes:
+
+- **Imprecise, same underlying fact** -> correct the text in place, **keep the ID**.
+  Past resumes made this same claim; correcting the source corrects the record.
+- **Actually a different fact** -> new ID. Leave the original alone.
+- **Does not hold up / was overstated** -> **retract**: move the bullet under a
+  `## Retired` heading in its entry file. Never delete it.
+
+Retract rather than delete because IDs are append-only. A retired ID still
+resolves, so a library entry from six months ago does not dangle — but
+`check_provenance.py` will reject any *new* draft that cites it.
+
+### Always run the staleness check first
+
+    python3 scripts/check_staleness.py nw.b3 --library library
+
+If it reports hits, show them to the user before making the change:
+
+    ! nw.b3 is cited in 2 resume(s) you already sent:
+        library/2026-03-11-northwind-platform
+        library/2026-05-02-acme-infra
+
+That is the whole point. Quietly fixing the master leaves the user unaware they
+have a claim in the wild they can no longer back up — which is the exact interview
+failure this system exists to prevent.
+
+Confirm edits more strictly than appends. Silently changing a fact already sent
+out is worse than silently adding one.
 
 ## Never
 
