@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from resumelib.draft import Finding  # noqa: E402
 from resumelib.rules import Rules, load_rules  # noqa: E402
 
-FIRST_PERSON_RE = re.compile(r"\b(I|me|my|mine|we|our|us)\b")
+FIRST_PERSON_RE = re.compile(r"\b(I|me|my|mine|we|our|us)\b", re.IGNORECASE)
 
 
 def _content_lines(text: str) -> list:

@@ -40,6 +40,13 @@ class TestCheckHardRules(unittest.TestCase):
             path.write_text("- Introduced a myriad of improvements\n")
             self.assertEqual([f.kind for f in check(path, RULES)], [])
 
+    def test_flags_capitalized_sentence_initial_first_person(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "draft.md"
+            path.write_text("- My team reduced latency 30%.\n")
+            self.assertIn("first_person", [f.kind for f in check(path, RULES)])
+
     def test_flags_over_budget_draft(self):
         import tempfile
         with tempfile.TemporaryDirectory() as tmp:
