@@ -8,6 +8,7 @@ interview, not computed here.
 """
 from __future__ import annotations
 
+import datetime
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -17,6 +18,9 @@ from resumelib.master import Entry, load_entries
 MIN_BULLETS = 3          # a substantive role carries at least this many accomplishments
 GAP_MONTHS = 6           # an unexplained employment gap wider than this is flagged
 EXPECTED_SECTIONS = ("role", "skill", "education")
+
+YEAR_MIN_BULLETS = 1     # every year of tenure carries at least one accomplishment
+QUIET_YEAR_RE = re.compile(r"^\d{4}$")
 
 METRIC_RE = re.compile(r"\d|%|\$")
 _MONTH_RE = re.compile(r"^(\d{4})-(\d{2})")
@@ -33,6 +37,19 @@ def has_metric(text: str) -> bool:
 
 
 @dataclass
+class YearCoverage:
+    """One year of a role's tenure and what was recorded against it."""
+    year: int
+    bullet_count: int
+    quiet: bool = False
+
+    @property
+    def unmined(self) -> bool:
+        """True when this year has nothing recorded and was not declared quiet."""
+        return not self.quiet and self.bullet_count < YEAR_MIN_BULLETS
+
+
+@dataclass
 class EntryCoverage:
     id: str
     type: str
@@ -40,6 +57,9 @@ class EntryCoverage:
     bullet_count: int
     unquantified: list = field(default_factory=list)  # live bullet ids lacking a number
     thin: bool = False
+    years: list = field(default_factory=list)          # list[YearCoverage]
+    undated: list = field(default_factory=list)        # live bullet ids with no period
+    out_of_range: list = field(default_factory=list)   # (bullet_id, period) outside tenure
 
 
 def _label(entry: Entry) -> str:
@@ -50,13 +70,66 @@ def _label(entry: Entry) -> str:
     return entry.meta.get("name") or entry.id
 
 
-def entry_coverage(entry: Entry) -> EntryCoverage:
+def tenure_years(entry, today=None) -> list:
+    """Calendar years the role spans, or [] when the dates cannot be read.
+
+    A role with no `end` is ongoing and runs through the reference year. `today`
+    is injectable because otherwise coverage of an ongoing role changes with the
+    wall clock and cannot be tested.
+    """
+    start = _parse_month(entry.meta.get("start", ""))
+    if start is None:
+        return []
+    end = _parse_month(entry.meta.get("end", ""))
+    if end is None:
+        today = today or datetime.date.today()
+        end = (today.year, today.month)
+    if end < start:
+        return []
+    return list(range(start[0], end[0] + 1))
+
+
+def quiet_years(entry) -> set:
+    """Years the user declared genuinely empty.
+
+    Bare years only. The map is year-resolution, so a quarter-form value cannot
+    be honoured without silencing three quarters that were not declared quiet.
+    """
+    years = set()
+    for part in entry.meta.get("quiet", "").split(","):
+        part = part.strip()
+        if QUIET_YEAR_RE.match(part):
+            years.add(int(part))
+    return years
+
+
+def entry_coverage(entry: Entry, today=None) -> EntryCoverage:
     live = [b for b in entry.bullets if not b.retired]
+    years = tenure_years(entry, today=today)
+    quiet = quiet_years(entry)
+    counts = {year: 0 for year in years}
+    undated, out_of_range = [], []
+    for bullet in live:
+        if bullet.period is None:
+            undated.append(bullet.id)
+            continue
+        if not years:
+            # No tenure to place it against -- a project carries no dates, so a
+            # dated bullet on one is not "out of range", it is just unplaceable.
+            continue
+        year = int(bullet.period[:4])
+        if year in counts:
+            counts[year] += 1
+        else:
+            out_of_range.append((bullet.id, bullet.period))
     return EntryCoverage(
         id=entry.id, type=entry.type, label=_label(entry),
         bullet_count=len(live),
         unquantified=[b.id for b in live if not has_metric(b.text)],
-        thin=entry.type == "role" and len(live) < MIN_BULLETS)
+        thin=entry.type == "role" and len(live) < MIN_BULLETS,
+        years=[YearCoverage(year=year, bullet_count=counts[year], quiet=year in quiet)
+               for year in years],
+        undated=undated, out_of_range=out_of_range)
 
 
 def _parse_month(value: str):
@@ -108,9 +181,9 @@ class Coverage:
     missing_sections: list = field(default_factory=list)
 
 
-def scan(master_dir) -> Coverage:
+def scan(master_dir, today=None) -> Coverage:
     entries = load_entries(Path(master_dir))
     return Coverage(
-        entries=[entry_coverage(entry) for entry in entries],
+        entries=[entry_coverage(entry, today=today) for entry in entries],
         gaps=timeline_gaps(entries),
         missing_sections=missing_sections(entries))

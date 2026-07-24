@@ -136,5 +136,113 @@ class TestScanAgainstThinMaster(unittest.TestCase):
         self.assertEqual(self.cov.missing_sections, ["skill", "education"])
 
 
+import datetime
+
+from resumelib.coverage import (
+    YEAR_MIN_BULLETS, YearCoverage, quiet_years, tenure_years,
+)
+
+
+def _bullet(id, period=None, retired=False, text="Did a thing worth 3 points"):
+    return Bullet(id=id, text=text, retired=retired, period=period)
+
+
+class TestTenureYears(unittest.TestCase):
+    def test_closed_range_spans_start_to_end_year(self):
+        entry = _dated_role("role.a", "2021-03", "2024-08")
+        self.assertEqual(tenure_years(entry), [2021, 2022, 2023, 2024])
+
+    def test_ongoing_role_runs_to_the_reference_year(self):
+        entry = _dated_role("role.a", "2022-01", "")
+        self.assertEqual(tenure_years(entry, today=datetime.date(2024, 5, 1)),
+                         [2022, 2023, 2024])
+
+    def test_unparseable_start_yields_no_timeline(self):
+        entry = _dated_role("role.a", "", "2024-08")
+        self.assertEqual(tenure_years(entry), [])
+
+    def test_end_before_start_yields_no_timeline(self):
+        entry = _dated_role("role.a", "2024-01", "2021-01")
+        self.assertEqual(tenure_years(entry), [])
+
+
+class TestQuietYears(unittest.TestCase):
+    def test_bare_years_are_parsed(self):
+        entry = Entry(id="role.a", type="role", path=None,
+                      meta={"quiet": "2023, 2025"}, bullets=[])
+        self.assertEqual(quiet_years(entry), {2023, 2025})
+
+    def test_quarter_form_and_garbage_are_ignored(self):
+        # The map is year-resolution, so silencing a whole year because one quarter
+        # was empty would hide three real quarters.
+        entry = Entry(id="role.a", type="role", path=None,
+                      meta={"quiet": "2024-Q1, banana, 2023"}, bullets=[])
+        self.assertEqual(quiet_years(entry), {2023})
+
+    def test_absent_quiet_key_is_empty(self):
+        self.assertEqual(quiet_years(_dated_role("role.a", "2021-01", "2022-01")), set())
+
+
+class TestTimelineCoverage(unittest.TestCase):
+    def _role_with(self, bullets, **meta):
+        meta.setdefault("start", "2021-01")
+        meta.setdefault("end", "2023-12")
+        return Entry(id="role.a", type="role", path=None, meta=meta, bullets=bullets)
+
+    def test_years_are_bucketed_by_period(self):
+        entry = self._role_with([_bullet("a.b1", "2021"), _bullet("a.b2", "2021-Q4"),
+                                 _bullet("a.b3", "2023")])
+        years = {yc.year: yc.bullet_count for yc in entry_coverage(entry).years}
+        self.assertEqual(years, {2021: 2, 2022: 0, 2023: 1})
+
+    def test_a_year_with_nothing_recorded_is_unmined(self):
+        entry = self._role_with([_bullet("a.b1", "2021"), _bullet("a.b2", "2023")])
+        unmined = [yc.year for yc in entry_coverage(entry).years if yc.unmined]
+        self.assertEqual(unmined, [2022])
+
+    def test_a_declared_quiet_year_is_not_unmined(self):
+        entry = self._role_with([_bullet("a.b1", "2021"), _bullet("a.b2", "2023")],
+                                quiet="2022")
+        cov = entry_coverage(entry)
+        self.assertEqual([yc.year for yc in cov.years if yc.unmined], [])
+        self.assertTrue([yc for yc in cov.years if yc.year == 2022][0].quiet)
+
+    def test_undated_bullets_are_listed_not_guessed(self):
+        entry = self._role_with([_bullet("a.b1", "2021"), _bullet("a.b2")])
+        self.assertEqual(entry_coverage(entry).undated, ["a.b2"])
+
+    def test_bullet_dated_outside_tenure_is_reported(self):
+        entry = self._role_with([_bullet("a.b1", "2019")])
+        self.assertEqual(entry_coverage(entry).out_of_range, [("a.b1", "2019")])
+
+    def test_retired_bullets_do_not_count_toward_a_year(self):
+        entry = self._role_with([_bullet("a.b1", "2022", retired=True)])
+        years = {yc.year: yc.bullet_count for yc in entry_coverage(entry).years}
+        self.assertEqual(years[2022], 0)
+
+    def test_thin_still_fires_independently_of_the_timeline(self):
+        # A one-year role must not clear the bar on a single bullet.
+        entry = Entry(id="role.a", type="role", path=None,
+                      meta={"start": "2021-01", "end": "2021-12"},
+                      bullets=[_bullet("a.b1", "2021")])
+        cov = entry_coverage(entry)
+        self.assertTrue(cov.thin)
+        self.assertEqual([yc.year for yc in cov.years if yc.unmined], [])
+
+    def test_project_without_dates_has_no_timeline(self):
+        entry = Entry(id="proj.a", type="project", path=None, meta={},
+                      bullets=[_bullet("a.b1")])
+        self.assertEqual(entry_coverage(entry).years, [])
+
+    def test_dated_bullet_on_an_undated_entry_is_not_out_of_range(self):
+        # A project has no tenure, so its dated bullet is unplaceable rather
+        # than misfiled. Reporting it as out-of-range would be a false alarm.
+        entry = Entry(id="proj.a", type="project", path=None, meta={},
+                      bullets=[_bullet("a.b1", "2020")])
+        cov = entry_coverage(entry)
+        self.assertEqual(cov.out_of_range, [])
+        self.assertEqual(cov.undated, [])
+
+
 if __name__ == "__main__":
     unittest.main()
