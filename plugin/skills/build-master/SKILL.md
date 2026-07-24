@@ -1,6 +1,6 @@
 ---
 name: build-master
-description: Add, enrich, correct, or retract facts in the master resume. Use when the user reports experience, answers a gap question, corrects a draft's facts, uploads a resume or brag doc, or asks to update their master resume. This is the only component permitted to write to master/.
+description: Add, enrich, correct, or retract facts in the master resume. Use when the user reports experience, answers a gap question, corrects a draft's facts, uploads a resume or brag doc, or asks to update their master resume — including on a first run against an empty or thin master, or when the user says "help me build out my resume," "build out my resume," or "let's keep going." This is the only component permitted to write to master/.
 ---
 
 # Build master

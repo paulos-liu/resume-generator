@@ -46,17 +46,31 @@ check.
   it that way -- what did you do that someone else in your seat wouldn't have?"*
 - **The quantification ladder.** A bullet with no number walks six rungs, easiest
   first -- scope -> frequency/volume -> team/audience size -> before/after -> time
-  saved -> money. Accept a defensible range or estimate; **flag it `(est.)`** and
-  never invent a figure.
+  saved -> money. Each rung is a narrow closed question (a count, a range, a
+  before/after pair) -- see `## Pacing` for why that lets the ladder run rung after
+  rung without breaking the one-open-question rule. Accept a defensible range or
+  estimate; **flag it `(est.)`** and never invent a figure.
 - **The "why did that matter?" ladder.** Climb from a flat fact to its business
   impact until it reaches a terminal value -- "migrated the database" becomes "team
   stopped losing a day a week -> shipped the launch on time."
 
 ## Pacing
 
-One open question at a time; never two open-enders back to back. Work in sittings --
-the map is the re-entry point. Stop a section on saturation: two probes yielding
-nothing new.
+One open question at a time; never two open-enders back to back. This governs
+**open-ended** questions -- "what are you most proud of here?", the angle probe,
+the "why did that matter?" ladder, the section catch-all -- anything that hands the
+user a blank page to fill.
+
+The quantification ladder's rungs are not open-enders: each is a narrow closed
+question with a one-word or one-number answer (a scope, a count, a before/after
+pair). That is what makes them exempt from this rule -- the ladder can fire rung
+after rung in a quick back-to-back sequence, because answering one costs the user
+nothing like what an open question costs. Six rungs asked in sequence is normal
+ladder behavior, not a pacing violation. If a rung's answer turns into a story,
+treat what follows as an open-ended exchange again and go back to one at a time.
+
+Work in sittings -- the map is the re-entry point. Stop a section on saturation:
+two probes yielding nothing new.
 
 ## Never
 

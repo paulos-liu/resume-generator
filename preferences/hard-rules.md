@@ -20,10 +20,18 @@ rule here is enforced and a rule there is only ever applied.
 
 ## Why `max_lines` is 42
 
-Calibrated against `templates/standard.md`: filled with filler text at the
-template's font and margins, 42 non-blank lines is the most that fits on one page.
-Recalibrate by re-running the procedure in that file's header comment whenever the
-template changes.
+**UNCALIBRATED DEFAULT.** 42 has not actually been measured against a rendered
+page — it is a placeholder, not ground truth. The calibration procedure lives in
+the header comment of `templates/standard.md`; it renders the template filled
+with filler bullets and counts what fits on page one. Run it for real at setup
+time (`setup`'s step 3) wherever document rendering is actually available, then
+replace this paragraph with the measured number and the date it was measured.
+Recalibrate the same way whenever the template changes.
+
+A "line" here means one non-blank line of the rendered output page — this
+includes section headings (`## Experience`) and the name/contact line, not only
+bullet lines, since a heading takes up a line of vertical space on the page just
+as a bullet does.
 
 ## Conflicts
 
