@@ -6,7 +6,7 @@ from scripts.check_manifest import check
 ROOT = Path(__file__).resolve().parent.parent
 PLUGIN = ROOT / "plugin"
 
-REQUIRED_SKILLS = ["build-master"]
+REQUIRED_SKILLS = ["build-master", "setup"]
 REQUIRED_AGENTS = []
 
 
