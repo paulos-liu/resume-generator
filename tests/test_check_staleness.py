@@ -16,11 +16,15 @@ class TestFindCitations(unittest.TestCase):
 
     def test_finds_multiple_applications(self):
         hits = sorted(p.name for p in find_citations("nw.b1", LIBRARY))
-        self.assertEqual(hits, ["2026-03-11-northwind-platform"])
+        self.assertEqual(
+            hits, ["2026-03-11-northwind-platform", "2026-05-02-acme-infra"])
 
     def test_results_are_sorted_by_directory_name(self):
-        hits = [p.name for p in find_citations("nw.b2", LIBRARY)]
-        self.assertEqual(hits, ["2026-05-02-acme-infra"])
+        # nw.b1 is cited by both applications. Assert the order find_citations
+        # itself returns, without sorting here -- that's the behavior under test.
+        hits = [p.name for p in find_citations("nw.b1", LIBRARY)]
+        self.assertEqual(
+            hits, ["2026-03-11-northwind-platform", "2026-05-02-acme-infra"])
 
 
 if __name__ == "__main__":

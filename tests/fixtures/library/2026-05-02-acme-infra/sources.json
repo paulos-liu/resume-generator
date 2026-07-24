@@ -1,1 +1,2 @@
-[{"text": "Migrated 38 services to ECS", "source": ["nw.b2"]}]
+[{"text": "Migrated 38 services to ECS", "source": ["nw.b2"]},
+ {"text": "Reduced checkout latency on a 2M req/day service", "source": ["nw.b1"]}]
