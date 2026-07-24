@@ -4,6 +4,13 @@ Model-dependent checks. Unlike `scripts/check_*.py`, these need a live agent run
 so they are not part of `python3 -m unittest`. Run them after any change to a
 SKILL.md or to the reviewer agent.
 
+## Eval categories
+
+- **invention**: `tailor-resume` gap-detection when a required skill is absent from the master.
+- **faithfulness**: `tailor-resume` respects tailor boundaries; does not stretch adjacent experience.
+- **loop**: `tailor-resume` handles the feedback loop correctly; refusals and revisions.
+- **interview**: `build-master` interview mode fires its deterministic sub-routines (just-my-job counter-probe, quantification ladder, impact ladder) and enforces confirm-before-write against an empty or thin master.
+
 ## How to run
 
 1. Point the system at the fixture master:
