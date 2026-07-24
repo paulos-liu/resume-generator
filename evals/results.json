@@ -22,7 +22,7 @@
   {
     "case": "faithfulness/case-03-team-of-4",
     "expected": "supported",
-    "actual": "supported"
+    "actual": "unsupported"
   },
   {
     "case": "faithfulness/case-04-engineering-teams",
@@ -68,5 +68,10 @@
     "case": "faithfulness/case-12-production-at-scale",
     "expected": "unsupported",
     "actual": "unsupported"
+  },
+  {
+    "case": "loop/case-01-conflicting-rules",
+    "expected": "surfaced_conflict",
+    "actual": "surfaced_conflict"
   }
 ]
