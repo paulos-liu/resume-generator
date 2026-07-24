@@ -113,11 +113,34 @@ where fact integrity is structurally enforced, not a refinement.
 | `unsupported`, `uncited`, `unknown_source`, `retired_source` | **Exit the loop.** Becomes a gap question |
 | `over_budget`, `banned_word`, `first_person`, `filler_adverb`, `present_tense` | Fix and re-review |
 
+**Record the review durably, every time you dispatch the reviewer.** Save the
+JSON list it returns to a file (e.g. `library/<dir>/.review-findings.json`), then:
+
+    python3 scripts/check_review.py library/<dir> --record library/<dir>/.review-findings.json
+
+This writes `library/<dir>/review.json`: the findings, a clean/unresolved
+verdict, and a hash of the `draft.md` this review applied to. Do this on every
+iteration, including the one that finally comes back clean — a fresh session
+running `render-resume` cannot see this loop happen, only the record it leaves.
+Without it, nothing distinguishes a reviewed draft from a draft that was never
+reviewed, or one hand-edited after the review that cleared it.
+
 **Fact findings never auto-iterate.** If you iterate toward a passing verdict on an
 unsupported claim, you will not find the truth — you will negotiate. "Led a team of
 4 rebuilding checkout" becomes "contributed to cross-functional platform
 initiatives", which passes by saying nothing. An unsupported claim is a gap for the
 user to answer, not a drafting defect for you to fix.
+
+**On a fact finding, remove the bullet — from both files — before exiting the
+loop.** Routing the finding to a gap question is not enough by itself: unless the
+offending bullet is also deleted from `draft.md` and its entry deleted from
+`sources.json`, it keeps citing a live ID and keeps passing both mechanical
+checks while the gap question sits unanswered. "Leave unanswered gaps out of the
+resume" (step 9) is about no-match requirements that were never drafted; this is
+about a bullet that already exists on the page and must be taken back off it.
+Put a bullet back covering this ground only if the eventual gap answer supports
+it — a new bullet from `build-master`, matched and cited fresh through step 3 —
+never the original unsupported line restored as-is.
 
 **Re-run every check on every iteration, never only the failed ones.** Rewriting a
 bullet to remove a banned word is precisely when it drifts from its cited source,
@@ -129,10 +152,10 @@ be satisfied — and without a cap that oscillates forever. When you surface a
 conflict, ask the user to prioritise, then record the resolution in
 `preferences/hard-rules.md` so it cannot recur.
 
-## 8. Gap loop
+## 9. Gap loop
 
-Two sources feed one queue: no-match requirements from step 2, and fact findings
-that exited the review loop in step 7.
+Two sources feed one queue: no-match requirements from step 3, and fact findings
+that exited the review loop in step 8.
 
 **Check `master/known-gaps.md` first** and drop anything already recorded there.
 Asking someone twice whether they know Kubernetes is how a system teaches people to
@@ -149,15 +172,21 @@ stop reading its questions.
 Route every answer through `build-master` — you never write to `master/` yourself,
 and that includes the answers that are "no".
 
-- **Yes** -> `build-master` writes a new entry or bullet. Then re-run from step 2;
+- **Yes** -> `build-master` writes a new entry or bullet. Then re-run from step 3;
   the new bullet is now available to every future job too.
 - **No** -> `build-master` records it in `known-gaps.md`.
 
 Leave unanswered gaps out of the resume. Honestly absent beats plausibly stretched.
+That includes a bullet a fact finding already removed in step 8 — it stays out
+unless a fresh, properly sourced bullet earns its way back in.
 
 ## Never
 
 - Write to `master/`, including gap answers. Those go through `build-master`.
 - Emit a bullet without a source ID.
 - Drop a number or qualifier to make a claim easier to support.
+- Drop an `(est.)` marker while keeping the number it qualified.
 - Cover a gap by writing around it.
+- Leave a bullet in `draft.md` or `sources.json` after a fact finding routed it
+  out of the review loop.
+- Skip recording `review.json` on any review iteration, including the clean one.
