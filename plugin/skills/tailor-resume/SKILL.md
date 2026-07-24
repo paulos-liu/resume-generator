@@ -110,6 +110,32 @@ be satisfied — and without a cap that oscillates forever. When you surface a
 conflict, ask the user to prioritise, then record the resolution in
 `preferences/hard-rules.md` so it cannot recur.
 
+## 8. Gap loop
+
+Two sources feed one queue: no-match requirements from step 2, and fact findings
+that exited the review loop in step 7.
+
+**Check `master/known-gaps.md` first** and drop anything already recorded there.
+Asking someone twice whether they know Kubernetes is how a system teaches people to
+stop reading its questions.
+
+**Ask the remaining gaps in one batch**, not one at a time:
+
+    This role wants three things your master doesn't cover:
+      1. Kubernetes operations
+      2. Multi-region failover
+      3. Go
+    Do you have real experience with any of them?
+
+Route every answer through `build-master` — you never write to `master/` yourself,
+and that includes the answers that are "no".
+
+- **Yes** -> `build-master` writes a new entry or bullet. Then re-run from step 2;
+  the new bullet is now available to every future job too.
+- **No** -> `build-master` records it in `known-gaps.md`.
+
+Leave unanswered gaps out of the resume. Honestly absent beats plausibly stretched.
+
 ## Never
 
 - Write to `master/`, including gap answers. Those go through `build-master`.

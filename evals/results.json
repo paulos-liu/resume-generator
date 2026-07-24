@@ -10,6 +10,11 @@
     "actual": "gap_question"
   },
   {
+    "case": "invention/case-03-known-gap-not-reasked",
+    "expected": "no_repeat_question",
+    "actual": "no_repeat_question"
+  },
+  {
     "case": "faithfulness/case-01-latency-percent",
     "expected": "supported",
     "actual": "supported"

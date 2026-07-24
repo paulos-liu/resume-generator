@@ -113,6 +113,21 @@ failure this system exists to prevent.
 Confirm edits more strictly than appends. Silently changing a fact already sent
 out is worse than silently adding one.
 
+## Recording gap answers
+
+Gap answers arrive from `tailor-resume`. Both kinds are writes, and both are yours.
+
+**"Yes, I have done that."** Treat it as a new fact: confirm the specifics
+(metric, outcome, scope) before writing, exactly as in `## Enrich`. A gap answer
+is not pre-confirmed just because it answers a question — this is precisely where
+someone stretches to fit a job they want.
+
+**"No, I haven't."** Append to `master/known-gaps.md`:
+
+    - [2026-07-24] Kubernetes — asked during Stripe Backend application
+
+Commit as `master: record known gap — Kubernetes`.
+
 ## Never
 
 - Write without confirmation.
