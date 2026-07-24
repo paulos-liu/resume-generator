@@ -41,6 +41,7 @@ user unable to back up claims in an interview.
 | Fact enforcement | Provenance IDs + mechanical check + narrow faithfulness judge | Converts an open-ended question ("is this supported *anywhere*?") into a narrow, reliable one ("is this faithful to *this* cited bullet?"). Yields an interview prep sheet for free |
 | Output | Markdown draft + calibrated content budget; render last | Length is enforced deterministically without rendering, so it works in both surfaces. Rendering happens once, at the end |
 | Reviewer form | A **subagent**, not a skill | A skill loads into the drafting context. Only an agent gets a fresh context window — which is what makes the check real |
+| Style | Split by decidability: grep-able rules enforced by the reviewer, the rest applied at generation via approved exemplars | A rule too vague to check is too vague to apply. Exemplars beat descriptions; a fuzzy style judge would only manufacture nitpicks |
 
 ### Rejected alternatives
 
@@ -80,8 +81,8 @@ resume-generator/
     roles/ projects/ skills/ education/
     known-gaps.md                 # answered "no" — stops repeat questions
   preferences/
-    style.md                      # soft guidance
-    hard-rules.md                 # enforced constraints
+    style.md                      # exemplars + prefer/avoid; applied at generation
+    hard-rules.md                 # deterministic; enforced by the reviewer
   library/
     2026-07-24-stripe-backend/
       job.md  requirements.md  draft.md  sources.json  resume.docx
@@ -119,7 +120,7 @@ watched itself write the draft will rationalize it.
 The file formats are the interfaces between components. Nothing shares in-memory state,
 which is what lets the system run identically in Cowork and Claude Code.
 
-### Master entry
+### 4.1 Master entry
 
 ```markdown
 ---
@@ -145,7 +146,7 @@ Three properties make the fact check cheap:
 Entry types: `role`, `project`, `skill`, `education`. Skills carry evidence references
 to the role or project bullets that demonstrate them.
 
-### Tailor output contract
+### 4.2 Tailor output contract
 
 `draft.md` is human-readable; `sources.json` carries provenance:
 
@@ -159,6 +160,46 @@ to the role or project bullets that demonstrate them.
 Every bullet must cite at least one source ID. This is required, not advisory — an
 uncited bullet is a hard failure.
 
+### 4.3 Preferences memory
+
+Style is hard to *check*, and that is the same reason it is hard to *apply*: a rule too
+vague to verify is too vague to act on. `style.md` full of "be direct, sound senior"
+changes nothing at generation time. So preferences are split by **whether a rule is
+mechanically decidable**, not by how important it feels.
+
+**`hard-rules.md` — deterministic, enforced by the reviewer.** Much of what feels like
+style is actually checkable by grep:
+
+```markdown
+- max_lines: 42            # from the calibrated template
+- no first person ("I", "my")
+- banned words: spearheaded, synergy, leveraged, utilized, passionate
+- past tense for all prior roles
+- no filler adverbs: very, really, significantly, substantially
+```
+
+Zero false positives, no model judgment, no cost. Anything that can be moved here
+should be.
+
+**`style.md` — applied at generation, never audited.** Two parts:
+
+1. **Exemplars.** Three to five bullets the user has approved *verbatim*, used as
+   few-shot examples. This is the strongest available style signal — you do not describe
+   a voice, you show it. The set improves for free: every bullet the user approves or
+   rewrites during review is a candidate exemplar.
+2. **Prefer/avoid pairs**, never adjectives:
+
+   ```markdown
+   - prefer "built" / "shipped" over "spearheaded" / "drove"
+   - lead with the outcome, then the mechanism
+   - avoid: "responsible for X"  →  prefer: "did X, producing Y"
+   ```
+
+**No fuzzy style judge.** The irreducibly subjective remainder is left to generation
+time and to the user's own read of the draft. A style judge is the component most likely
+to manufacture nitpicks until the reviewer's output gets skimmed past — and style
+defects, unlike fact defects, are visible on first read.
+
 ---
 
 ## 5. Flows
@@ -168,6 +209,13 @@ uncited bullet is a hard failure.
 Elicits both preference buckets and writes `style.md` and `hard-rules.md`. It must
 actively *push* for hard rules — users do not volunteer "one page" or "no first person"
 unprompted; they complain only after seeing them violated.
+
+Seeding `style.md` needs a different technique, because asking "what tone do you want?"
+produces adjectives, and adjectives are useless at generation time (§4.3). Instead setup
+**harvests exemplars**: it pulls the strongest bullets out of whatever the user ingested,
+asks which ones sound like them, and keeps the approved ones verbatim. If the user has no
+prior material, setup drafts three variants of one bullet and asks which reads right —
+the choice is the signal.
 
 It also selects a template and calibrates its budget: render the template full of filler
 once, count what fits, store `max_lines` alongside it.
@@ -273,8 +321,8 @@ principle is structurally enforced.
 ```
 
 - **Hard-rule and length findings auto-iterate.** No fact content is at stake; this is
-  where the loop saves round trips. Style findings join this bucket when the style check
-  ships (deferred from v1 — see §9), since they carry the same risk profile.
+  where the loop saves round trips. Banned-word and tense violations land here too, since
+  they live in `hard-rules.md` (§4.3) and are decided by grep.
 - **Fact findings exit immediately.** An unsupported claim is not a drafting defect to be
   fixed — it is a gap, and it becomes a question to the user.
 - **Cap at 3 iterations**, then surface whatever is unresolved.
@@ -314,7 +362,13 @@ A standing rule in `AGENTS.md`, not a skill:
   (style) or missing seniority evidence (fact); guessing writes to the wrong store.
 
 Preference writes are specific and dated — *"prefer 'built' over 'spearheaded'"*, not
-*"be more direct."*
+*"be more direct."* Where a preference is decidable by grep it goes to `hard-rules.md`,
+not `style.md`, so the reviewer can enforce it.
+
+**Rewrites are harvested as exemplars.** When the user rewrites a bullet by hand rather
+than describing what they wanted, that rewrite is the cleanest style signal available —
+offer to keep it in `style.md`. This is how the exemplar set compounds without the user
+ever having to articulate their voice.
 
 ---
 
@@ -325,8 +379,10 @@ Preference writes are specific and dated — *"prefer 'built' over 'spearheaded'
 1. **Fact integrity** — mechanical: every bullet cites at least one ID, and every cited
    ID exists in the master. Then narrow judgment: is the rephrasing faithful to *that
    specific* cited bullet?
-2. **Hard rules** — all constraints in `hard-rules.md`, including the line budget.
-3. **Style** — deferred from v1 (see §9).
+2. **Hard rules** — all constraints in `hard-rules.md`: line budget, banned words, first
+   person, tense, filler adverbs. All decided by grep or count; no model judgment.
+
+There is deliberately no third, subjective style check — see §4.3.
 
 ### 6.2 Burden of proof
 
@@ -373,7 +429,9 @@ descriptions.
 3. **Faithfulness fixtures** — labeled (source, rephrasing) pairs the reviewer must
    classify, loaded with near-misses, since that is where drift lives. *"Led a team of
    4"* → *"led engineering teams"* is a stretch; a reviewer that passes it is broken.
-4. **Budget enforcement** — over-budget drafts are caught.
+4. **Hard-rule enforcement** — over-budget drafts, banned words, first person, and wrong
+   tense are all caught. Scriptable alongside the provenance check, since every rule in
+   `hard-rules.md` is decidable without a model.
 5. **Loop termination** — conflicting hard rules terminate at 3 rather than hanging.
 
 Build the invention test **before** the tailor skill. It is the reason the system exists,
@@ -387,9 +445,11 @@ and it is easier to write while still being honest about what "unsupported" mean
 
 - Master data model with provenance IDs
 - Build mode: ingest, interview/enrichment, update, correct, retract, staleness check
-- Setup and both preference buckets
+- Setup and both preference buckets, including exemplar harvesting
+- Style applied at generation via exemplars + prefer/avoid pairs
 - Tailor mode with mandatory provenance and requirement extraction
-- `resume-reviewer` agent: fact integrity + hard rules
+- `resume-reviewer` agent: fact integrity + hard rules (incl. banned words, tense,
+  first person — all deterministic)
 - Typed review loop with 3-iteration cap
 - Gap detection and `known-gaps.md`
 - Library saves every artifact
@@ -401,7 +461,7 @@ and it is easier to write while still being honest about what "unsupported" mean
 | Deferred | Reason |
 |---|---|
 | Similarity matching ("you applied to something like this") | Cannot be tuned until a dozen applications exist to tune against. Saving is nearly free; matching is a real feature |
-| Style as a separate reviewer check | Style violations are visible the instant the user reads the draft; fact violations are invisible. Spend the reviewer's budget on what cannot be self-checked. Style is still applied at draft time from `style.md` |
+| A subjective style *judge* | Not deferred — **rejected**. The checkable part of style moves into `hard-rules.md` and the reviewer enforces it deterministically (§4.3); the rest is applied at generation via exemplars. A fuzzy judge would manufacture nitpicks until the reviewer gets ignored, and style defects are visible on first read anyway |
 | Multiple templates | Ship one, calibrated properly |
 | Plugin marketplace packaging | v1 is "clone the repo, attach the folder" |
 | GitHub PR review layer | See §2 rejected alternatives |
