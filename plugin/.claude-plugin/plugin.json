@@ -1,0 +1,5 @@
+{
+  "name": "resume-assistant",
+  "description": "Maintain a master resume of verified facts and produce tailored, job-specific resumes that never contain an unsupported claim.",
+  "version": "0.1.0"
+}
