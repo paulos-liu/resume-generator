@@ -28,6 +28,38 @@ class TestCheckProvenance(unittest.TestCase):
         findings = check(FIXTURES / "drafts" / "unknown-id" / "sources.json", MASTER)
         self.assertIn("nw.b99", findings[0].detail)
 
+    # -- Finding 1: draft.md bullets absent from sources.json must be caught --
+
+    def test_drafted_bullet_missing_from_sources_is_uncited(self):
+        # The critical bypass: a bullet appears in draft.md but sources.json
+        # simply omits it. Passing sources.json alone (old interface) still
+        # must catch this, because check() now also reads the sibling draft.md.
+        findings = check(FIXTURES / "drafts" / "extra-bullet" / "sources.json", MASTER)
+        self.assertEqual([f.kind for f in findings], ["uncited"])
+        self.assertIn("Kubernetes", findings[0].detail)
+
+    def test_drafted_bullet_missing_from_sources_via_dir_interface(self):
+        # The documented CLI interface: pass the library dir directly.
+        findings = check(FIXTURES / "drafts" / "extra-bullet", MASTER)
+        self.assertEqual([f.kind for f in findings], ["uncited"])
+
+    def test_missing_draft_file_is_a_finding(self):
+        # A library dir with sources.json but no draft.md cannot be verified
+        # at all -- that must fail loudly, not be silently skipped.
+        findings = check(FIXTURES / "drafts" / "missing-draft", MASTER)
+        self.assertEqual([f.kind for f in findings], ["missing_draft"])
+
+    # -- Finding 3: an (est.) marker on the cited master bullet must survive --
+
+    def test_estimate_marker_preserved_has_no_finding(self):
+        findings = check(FIXTURES / "drafts" / "estimate-preserved", MASTER)
+        self.assertEqual(findings, [])
+
+    def test_estimate_marker_dropped_is_a_finding(self):
+        findings = check(FIXTURES / "drafts" / "estimate-dropped", MASTER)
+        self.assertEqual([f.kind for f in findings], ["estimate_upgraded"])
+        self.assertIn("nw.b5", findings[0].detail)
+
 
 if __name__ == "__main__":
     unittest.main()
