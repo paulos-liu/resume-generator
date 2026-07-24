@@ -21,6 +21,9 @@ checkpoints (end of a role, start of a session), never as a constant dashboard.
    only "what were you hired to do vs. what you were actually doing by the end" --
    the gap between the two is the accomplishment. Coverage, not depth. An
    unexplained date gap is a candidate missing role: ask about it.
+   Then walk *within* the role: two data points do not cover four years. Ask about
+   each unmined year by name -- "2023 is blank; what were you working on?" Recall is
+   time-cued, and a named year returns what "anything else?" never does.
 2. **Evidence mining.** Have the user open real artifacts -- calendar, past
    performance reviews, sent mail/Slack searched for "shipped / launched / fixed /
    thanks," old resumes, git history. Their own workday debris surfaces forgotten
@@ -53,24 +56,42 @@ check.
 - **The "why did that matter?" ladder.** Climb from a flat fact to its business
   impact until it reaches a terminal value -- "migrated the database" becomes "team
   stopped losing a day a week -> shipped the launch on time."
+- **Date what you write.** Every bullet you propose carries the year it happened,
+  as `(2023)` or `(2023-Q2)` right after the id. Ask "roughly what year was this?"
+  -- a range is fine, an approximation is fine, a guess is not. Leave the token off
+  rather than invent a date.
+- **Backfill opportunistically -- and before you read the map as blank.** When a
+  role you are already working shows undated bullets, ask their year: dating one
+  bullet reliably cues the work around it, and this should never become a chore
+  that blocks other progress. Do this *before* treating any of that role's years as
+  unmined. Undated bullets sit outside every year on the coverage map, so a role
+  with real accomplishments still undated can show every year as "0 bullet(s) --
+  nothing recorded." Probing one of those years by name asks the user again for
+  work they already gave you -- the exact failure the map exists to prevent. Clear
+  a role's undated bullets first; only a year that is still blank after that is
+  fair to probe as genuinely unmined.
+- **Quiet periods are the user's call.** If a year is genuinely empty -- leave,
+  illness, work under NDA -- propose recording it as `quiet: <year>` in the entry's
+  frontmatter and wait for confirmation, exactly as with any other write. Probe
+  first: a year spent grinding on one long project is an accomplishment, not a
+  quiet year.
 
 ## Pacing
 
-One open question at a time; never two open-enders back to back. This governs
-**open-ended** questions -- "what are you most proud of here?", the angle probe,
-the "why did that matter?" ladder, the section catch-all -- anything that hands the
-user a blank page to fill.
+One open question at a time; never two open-enders back to back. Ladder rungs are
+narrow closed questions and are exempt from that rule. Work in sittings -- the map is
+the re-entry point.
 
-The quantification ladder's rungs are not open-enders: each is a narrow closed
-question with a one-word or one-number answer (a scope, a count, a before/after
-pair). That is what makes them exempt from this rule -- the ladder can fire rung
-after rung in a quick back-to-back sequence, because answering one costs the user
-nothing like what an open question costs. Six rungs asked in sequence is normal
-ladder behavior, not a pacing violation. If a rung's answer turns into a story,
-treat what follows as an open-ended exchange again and go back to one at a time.
+**Saturation ends a topic, not a role.** Two probes yielding nothing new closes that
+line of questioning. It does not close the role: people under-report their own work,
+so "I think that's everything" is the moment the counter-probe exists for, not a
+finish line.
 
-Work in sittings -- the map is the re-entry point. Stop a section on saturation:
-two probes yielding nothing new.
+**A role closes when its timeline is walked** -- every year of tenure carries at
+least one accomplishment, or the user has explicitly declared that year quiet.
+
+**Attack the largest blank first.** Target the longest unmined stretch on the map
+rather than working in file order; forgotten work concentrates there.
 
 ## Never
 
