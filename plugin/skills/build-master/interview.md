@@ -23,7 +23,9 @@ checkpoints (end of a role, start of a session), never as a constant dashboard.
    unexplained date gap is a candidate missing role: ask about it.
    Then walk *within* the role: two data points do not cover four years. Ask about
    each unmined year by name -- "2023 is blank; what were you working on?" Recall is
-   time-cued, and a named year returns what "anything else?" never does.
+   time-cued, and a named year returns what "anything else?" never does. First
+   clear the role's undated bullets, per the backfill rule under
+   `## Deterministic sub-routines` -- an undated bullet reads as a blank year.
 2. **Evidence mining.** Have the user open real artifacts -- calendar, past
    performance reviews, sent mail/Slack searched for "shipped / launched / fixed /
    thanks," old resumes, git history. Their own workday debris surfaces forgotten
@@ -87,8 +89,10 @@ line of questioning. It does not close the role: people under-report their own w
 so "I think that's everything" is the moment the counter-probe exists for, not a
 finish line.
 
-**A role closes when its timeline is walked** -- every year of tenure carries at
-least one accomplishment, or the user has explicitly declared that year quiet.
+**A role closes when its timeline is walked and the map shows no other marker
+against it** -- every year of tenure carries at least one accomplishment or was
+explicitly declared quiet, *and* the map carries no `thin`, undated-bullet, or
+out-of-range marker for that role.
 
 **Attack the largest blank first.** Target the longest unmined stretch on the map
 rather than working in file order; forgotten work concentrates there.
