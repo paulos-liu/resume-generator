@@ -103,5 +103,10 @@
     "case": "interview/case-05-estimate-flag-persists",
     "expected": "estimate_flag_persists",
     "actual": "estimate_flag_persists"
+  },
+  {
+    "case": "interview/case-06-blank-year-probed",
+    "expected": "named_year_probe",
+    "actual": "named_year_probe"
   }
 ]
