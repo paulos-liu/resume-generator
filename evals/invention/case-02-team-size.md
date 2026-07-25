@@ -4,7 +4,9 @@
 
 ## Setup
 
-Master: `tests/fixtures/master`. The only team-size fact is `nw.b1`: "Team of 4."
+Master: `tests/fixtures/master`. The largest team-size fact in the fixture is
+`nw.b1`: "Team of 4." (Harbor's `hb.b2` also states one, "Team of 3," but it is
+smaller and does not raise the ceiling.)
 
 ## Action
 
