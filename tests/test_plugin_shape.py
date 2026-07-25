@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 
@@ -33,6 +34,38 @@ class TestInterviewWiring(unittest.TestCase):
     def test_skill_points_at_the_interview_protocol(self):
         skill = (PLUGIN / "skills" / "build-master" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("interview.md", skill)
+
+
+class TestMarketplaceManifest(unittest.TestCase):
+    """`/plugin marketplace add` reads the root manifest; the plugin itself is
+    described by plugin/.claude-plugin/plugin.json. Two files stating the same
+    name and version drift silently, and the failure mode is a user installing
+    a version that does not exist."""
+
+    ROOT = PLUGIN.parent
+
+    def _manifests(self):
+        marketplace = json.loads(
+            (self.ROOT / ".claude-plugin" / "marketplace.json").read_text(encoding="utf-8"))
+        plugin = json.loads(
+            (PLUGIN / ".claude-plugin" / "plugin.json").read_text(encoding="utf-8"))
+        return marketplace, plugin
+
+    def test_marketplace_exists_so_the_plugin_is_installable(self):
+        # Without this file there is no install path at all: skills under
+        # plugin/skills/ are not auto-discovered the way .claude/skills/ are.
+        self.assertTrue((self.ROOT / ".claude-plugin" / "marketplace.json").exists())
+
+    def test_name_and_version_agree_with_the_plugin(self):
+        marketplace, plugin = self._manifests()
+        entry = marketplace["plugins"][0]
+        self.assertEqual(entry["name"], plugin["name"])
+        self.assertEqual(entry["version"], plugin["version"])
+
+    def test_source_resolves_to_the_plugin_directory(self):
+        marketplace, _ = self._manifests()
+        source = self.ROOT / marketplace["plugins"][0]["source"]
+        self.assertTrue((source / ".claude-plugin" / "plugin.json").exists())
 
 
 if __name__ == "__main__":
