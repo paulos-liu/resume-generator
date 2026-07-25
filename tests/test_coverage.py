@@ -263,3 +263,35 @@ class TestScanOverTheFixtureMaster(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestBadQuietValues(unittest.TestCase):
+    def test_unparsed_quiet_parts_are_reported_not_dropped(self):
+        # quiet_years() ignores anything that is not a bare year. Ignoring it
+        # silently would leave the user with no signal that their declaration
+        # did nothing, so the unparsed text is surfaced on the map instead.
+        entry = Entry(id="role.a", type="role", path=None,
+                      meta={"start": "2024-01", "end": "2024-12",
+                            "quiet": "2024-Q1, banana, 2024"},
+                      bullets=[])
+        cov = entry_coverage(entry)
+        self.assertEqual(sorted(cov.bad_quiet), ["2024-Q1", "banana"])
+
+    def test_all_valid_quiet_reports_nothing_bad(self):
+        entry = Entry(id="role.a", type="role", path=None,
+                      meta={"start": "2023-01", "end": "2023-12", "quiet": "2023"},
+                      bullets=[])
+        self.assertEqual(entry_coverage(entry).bad_quiet, [])
+
+
+class TestTenureOnCoverage(unittest.TestCase):
+    def test_start_and_end_are_carried_for_the_map(self):
+        entry = Entry(id="role.a", type="role", path=None,
+                      meta={"start": "2021-03", "end": "2024-08"}, bullets=[])
+        cov = entry_coverage(entry)
+        self.assertEqual((cov.start, cov.end), ("2021-03", "2024-08"))
+
+    def test_missing_dates_carry_as_empty(self):
+        entry = Entry(id="proj.a", type="project", path=None, meta={}, bullets=[])
+        cov = entry_coverage(entry)
+        self.assertEqual((cov.start, cov.end), ("", ""))

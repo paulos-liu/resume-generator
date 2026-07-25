@@ -34,20 +34,27 @@ def render(coverage: Coverage) -> str:
         if ec.unquantified:
             note += f", {len(ec.unquantified)} unquantified"
         marker = "  <- thin" if ec.thin else ""
-        lines.append(f"  {ec.label}: {note}{marker}")
+        tenure = f" ({ec.start} -> {ec.end or 'now'})" if ec.start else ""
+        lines.append(f"  {ec.label}{tenure}: {note}{marker}")
+        # Before the year rows, not after: an undated bullet counts toward no
+        # year, so these are the explanation for markers printed below them.
+        if ec.undated:
+            lines.append(f"    {len(ec.undated)} undated bullet(s): "
+                         + ", ".join(ec.undated))
         for yc in ec.years:
             suffix = ""
             if yc.quiet:
                 suffix = "  <- declared quiet"
             elif yc.unmined:
                 suffix = "  <- nothing recorded"
+                if ec.undated:
+                    suffix += f" ({len(ec.undated)} undated bullet(s) unplaced)"
             lines.append(f"    {yc.year} {_bar(yc.bullet_count)}  "
                          f"{yc.bullet_count} bullet(s){suffix}")
-        if ec.undated:
-            lines.append(f"    {len(ec.undated)} undated bullet(s): "
-                         + ", ".join(ec.undated))
         for bullet_id, period in ec.out_of_range:
             lines.append(f"    {bullet_id} dated {period}, outside this entry's tenure")
+        for value in ec.bad_quiet:
+            lines.append(f"    quiet value {value!r} not understood (bare years only)")
     if coverage.gaps:
         lines += ["", "Timeline gaps"]
         lines += [f"  {prev_end} -> {next_start}: no role recorded"

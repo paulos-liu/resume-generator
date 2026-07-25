@@ -60,6 +60,9 @@ class EntryCoverage:
     years: list = field(default_factory=list)          # list[YearCoverage]
     undated: list = field(default_factory=list)        # live bullet ids with no period
     out_of_range: list = field(default_factory=list)   # (bullet_id, period) outside tenure
+    bad_quiet: list = field(default_factory=list)      # unreadable `quiet` values
+    start: str = ""                                    # tenure, verbatim from frontmatter
+    end: str = ""                                      # empty when ongoing or absent
 
 
 def _label(entry: Entry) -> str:
@@ -89,24 +92,36 @@ def tenure_years(entry, today=None) -> list:
     return list(range(start[0], end[0] + 1))
 
 
-def quiet_years(entry) -> set:
-    """Years the user declared genuinely empty.
+def split_quiet(entry) -> tuple:
+    """(years the user declared empty, values that could not be read).
 
     Bare years only. The map is year-resolution, so a quarter-form value cannot
     be honoured without silencing three quarters that were not declared quiet.
+    Unreadable values are returned rather than dropped: a declaration that
+    quietly did nothing would let the interview re-probe a period the user
+    already answered for, and the map is the only place they would see that.
     """
-    years = set()
+    years, bad = set(), []
     for part in entry.meta.get("quiet", "").split(","):
         part = part.strip()
+        if not part:
+            continue
         if QUIET_YEAR_RE.match(part):
             years.add(int(part))
-    return years
+        else:
+            bad.append(part)
+    return years, bad
+
+
+def quiet_years(entry) -> set:
+    """Years the user declared genuinely empty. See split_quiet for the parsing."""
+    return split_quiet(entry)[0]
 
 
 def entry_coverage(entry: Entry, today=None) -> EntryCoverage:
     live = [b for b in entry.bullets if not b.retired]
     years = tenure_years(entry, today=today)
-    quiet = quiet_years(entry)
+    quiet, bad_quiet = split_quiet(entry)
     counts = {year: 0 for year in years}
     undated, out_of_range = [], []
     for bullet in live:
@@ -129,7 +144,8 @@ def entry_coverage(entry: Entry, today=None) -> EntryCoverage:
         thin=entry.type == "role" and len(live) < MIN_BULLETS,
         years=[YearCoverage(year=year, bullet_count=counts[year], quiet=year in quiet)
                for year in years],
-        undated=undated, out_of_range=out_of_range)
+        undated=undated, out_of_range=out_of_range, bad_quiet=bad_quiet,
+        start=entry.meta.get("start", ""), end=entry.meta.get("end", ""))
 
 
 def _parse_month(value: str):

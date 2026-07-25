@@ -61,5 +61,67 @@ class TestTimelineRender(unittest.TestCase):
         self.assertIn("NDJSON Stream", render(cov))
 
 
+class TestUndatedContext(unittest.TestCase):
+    """An undated bullet counts toward no year, so a role whose bullets are all
+    undated prints "nothing recorded" against every year while its real work sits
+    in the undated list. The marker is what gets acted on, so it must carry that
+    context rather than leaving the reader to find it further down."""
+
+    def _all_undated(self):
+        return Coverage(entries=[EntryCoverage(
+            id="role.a", type="role", label="Acme Staff Engineer", bullet_count=3,
+            years=[YearCoverage(2021, 0), YearCoverage(2022, 0)],
+            undated=["a.b1", "a.b2", "a.b3"])])
+
+    def test_unmined_marker_names_the_unplaced_bullets(self):
+        out = render(self._all_undated())
+        self.assertIn("nothing recorded (3 undated bullet(s) unplaced)", out)
+
+    def test_undated_line_precedes_the_year_rows_it_explains(self):
+        lines = render(self._all_undated()).splitlines()
+        undated_at = next(i for i, ln in enumerate(lines) if "undated bullet(s):" in ln)
+        first_year_at = next(i for i, ln in enumerate(lines) if "2021" in ln)
+        self.assertLess(undated_at, first_year_at)
+
+    def test_marker_is_unadorned_when_nothing_is_undated(self):
+        cov = Coverage(entries=[EntryCoverage(
+            id="role.a", type="role", label="Acme Staff Engineer", bullet_count=1,
+            years=[YearCoverage(2021, 1), YearCoverage(2022, 0)])])
+        out = render(cov)
+        self.assertIn("<- nothing recorded", out)
+        self.assertNotIn("unplaced", out)
+
+
+class TestBadQuietRender(unittest.TestCase):
+    def test_unparsed_quiet_value_is_surfaced(self):
+        # Silently dropping it would let the interview re-probe a period the user
+        # already declared quiet -- asking twice about, say, a medical leave.
+        cov = Coverage(entries=[EntryCoverage(
+            id="role.a", type="role", label="Acme Staff Engineer", bullet_count=1,
+            years=[YearCoverage(2024, 0)], bad_quiet=["2024-Q1"])])
+        out = render(cov)
+        self.assertIn("2024-Q1", out)
+        self.assertIn("bare years only", out)
+
+
+class TestTenureInHeader(unittest.TestCase):
+    def test_tenure_range_is_shown_when_known(self):
+        cov = Coverage(entries=[EntryCoverage(
+            id="role.a", type="role", label="Acme Staff Engineer", bullet_count=1,
+            start="2021-03", end="2024-08")])
+        self.assertIn("2021-03 -> 2024-08", render(cov))
+
+    def test_ongoing_role_shows_an_open_range(self):
+        cov = Coverage(entries=[EntryCoverage(
+            id="role.a", type="role", label="Acme Staff Engineer", bullet_count=1,
+            start="2021-03")])
+        self.assertIn("2021-03 -> now", render(cov))
+
+    def test_entry_without_dates_shows_no_range(self):
+        cov = Coverage(entries=[EntryCoverage(
+            id="proj.a", type="project", label="NDJSON Stream", bullet_count=1)])
+        self.assertNotIn("->", render(cov))
+
+
 if __name__ == "__main__":
     unittest.main()
