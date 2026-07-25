@@ -61,6 +61,10 @@ not add a claim the source does not make, and you may not **drop a qualifier to
 make a claim broader**. "Team of 4" must not become "teams." Vaguer is not safer —
 it is how a stretch hides.
 
+A bullet may open with a leading `(YYYY)` or `(YYYY-QN)` token — that is metadata
+about *when* the work happened, not part of the claim. Never carry it into the
+drafted bullet; dropping it is not dropping a qualifier.
+
 Apply `preferences/style.md`: match the exemplars' voice, follow the prefer/avoid
 list. Obey every rule in `preferences/hard-rules.md`.
 

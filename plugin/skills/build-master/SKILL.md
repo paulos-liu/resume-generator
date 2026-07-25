@@ -37,10 +37,23 @@ One file per role, project, skill, or education item, under the matching
     title: Staff Engineer
     start: 2021-03
     end: 2024-08
+    quiet: 2023
     ---
 
-    - [nw.b1] Cut p99 checkout latency from 340ms to 90ms by re-architecting the
-      cart service. ~2M requests/day. Team of 4. Shipped Q3 2022.
+    - [nw.b1] (2022-Q3) Cut p99 checkout latency from 340ms to 90ms by
+      re-architecting the cart service. ~2M requests/day. Team of 4.
+
+A bullet may open with a period token — `(YYYY)` or `(YYYY-QN)` — immediately
+after the id, before the text. It records *when the work happened*, not part of
+the claim itself, and is stripped from the bullet's text when parsed. Write one
+whenever the year is known; it is better to leave the token off than to guess a
+date. An undated bullet is invisible to the coverage map's per-year accounting, so
+date what you can.
+
+`quiet: <years>` is a frontmatter key alongside `start`/`end`, bare years only,
+comma-separated (e.g. `quiet: 2019, 2023`). It declares a year genuinely empty —
+leave, illness, work under NDA — and, like any other write, only goes in after the
+user confirms it.
 
 **Bullet IDs are append-only.** Pick a short stable prefix per entry (`nw`, `ndj`)
 and number upward forever. Never reuse a number, never renumber. A library entry
