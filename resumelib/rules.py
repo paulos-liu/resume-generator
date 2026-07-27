@@ -21,6 +21,9 @@ class Rules:
     ban_first_person: bool = False
     filler_adverbs: list = field(default_factory=list)
     present_tense_verbs: list = field(default_factory=list)
+    ban_street_address: bool = False
+    required_link_hosts: list = field(default_factory=list)
+    require_skills_line: bool = False
 
 
 def load_rules(path: Path) -> Rules:
@@ -34,4 +37,7 @@ def load_rules(path: Path) -> Rules:
         ban_first_person=data.get("ban_first_person", False),
         filler_adverbs=data.get("filler_adverbs", []),
         present_tense_verbs=data.get("present_tense_verbs", []),
+        ban_street_address=data.get("ban_street_address", False),
+        required_link_hosts=data.get("required_link_hosts", []),
+        require_skills_line=data.get("require_skills_line", False),
     )

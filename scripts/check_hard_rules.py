@@ -20,9 +20,40 @@ from resumelib.rules import Rules, load_rules  # noqa: E402
 
 FIRST_PERSON_RE = re.compile(r"\b(I|me|my|mine|we|our|us)\b", re.IGNORECASE)
 
+STREET_SUFFIXES = (
+    "Ave|Avenue|St|Street|Rd|Road|Blvd|Boulevard|Dr|Drive|Ln|Lane|Way|Ct|Court|"
+    "Pl|Place|Ter|Terrace|Cir|Circle|Hwy|Highway|Pkwy|Parkway|Sq|Square"
+)
+STREET_ADDRESS_RE = re.compile(
+    rf"\b\d{{1,6}}\s+(?:[\w.'-]+\s+){{0,4}}(?:{STREET_SUFFIXES})\b", re.IGNORECASE)
+
+SKILLS_HEADING = "skills"
+
 
 def _content_lines(text: str) -> list:
     return [line for line in text.splitlines() if line.strip()]
+
+
+def _is_prose_line(line: str) -> bool:
+    """True for header/contact lines -- not bullets, not headings.
+
+    The street-address check looks only at these. A street address only ever
+    appears in the contact block, and confining the match there keeps bullet
+    text like "built a 3 way merge tool" from tripping the suffix list.
+    """
+    stripped = line.lstrip()
+    return bool(stripped) and not stripped.startswith(("- ", "#"))
+
+
+def _skills_section_has_content(lines: list) -> bool:
+    in_skills = False
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("#"):
+            in_skills = stripped.lstrip("#").strip().lower() == SKILLS_HEADING
+        elif in_skills:
+            return True
+    return False
 
 
 def check(draft_path: Path, rules: Rules) -> list:
@@ -55,6 +86,29 @@ def check(draft_path: Path, rules: Rules) -> list:
         if words and words[0].lower() in present:
             findings.append(Finding(
                 "present_tense", f"bullet opens in present tense: {words[0]!r}"))
+
+    if rules.ban_street_address:
+        for line in lines:
+            if not _is_prose_line(line):
+                continue
+            match = STREET_ADDRESS_RE.search(line)
+            if match:
+                findings.append(Finding(
+                    "street_address",
+                    f"street address in contact block: {match.group(0)!r} "
+                    "-- use city and state only"))
+
+    if rules.required_link_hosts:
+        lowered = text.lower()
+        if not any(host.lower() in lowered for host in rules.required_link_hosts):
+            findings.append(Finding(
+                "missing_profile_link",
+                "no profile link; expected one of: "
+                + ", ".join(rules.required_link_hosts)))
+
+    if rules.require_skills_line and not _skills_section_has_content(lines):
+        findings.append(Finding(
+            "missing_skills_line", "no Skills section with content"))
 
     return findings
 

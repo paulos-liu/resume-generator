@@ -22,6 +22,22 @@ class TestLoadRules(unittest.TestCase):
             self.assertEqual(rules.max_lines, 10)
             self.assertEqual(rules.banned_words, [])
             self.assertFalse(rules.ban_first_person)
+            self.assertFalse(rules.ban_street_address)
+            self.assertEqual(rules.required_link_hosts, [])
+            self.assertFalse(rules.require_skills_line)
+
+    def test_reads_the_layout_rules(self):
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "hard-rules.md"
+            path.write_text(
+                '```json\n{"ban_street_address": true, '
+                '"required_link_hosts": ["github.com"], '
+                '"require_skills_line": true}\n```\n')
+            rules = load_rules(path)
+            self.assertTrue(rules.ban_street_address)
+            self.assertEqual(rules.required_link_hosts, ["github.com"])
+            self.assertTrue(rules.require_skills_line)
 
 
 if __name__ == "__main__":

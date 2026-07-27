@@ -8,6 +8,31 @@ description: One-time setup for the resume assistant. Elicits hard rules and sty
 Runs once. Populates `preferences/hard-rules.md` and `preferences/style.md`, then
 calibrates the line budget.
 
+## 0. Check this is the user's own private copy — before anything else
+
+    python3 scripts/check_private.py
+
+Everything after this step writes real personal data, and everything after
+`setup` writes more of it. Git history is published along with the tree, so a
+repo that turns out to be public or shared cannot be fixed by deleting files
+later — the commits still hold the user's name, employers, and dates.
+
+The check answers two questions and fails closed on both:
+
+- **Is this the user's own copy, or the shared upstream tool repo?** Writing one
+  person's employment history into the repo everyone pulls from is the mistake
+  that cannot be walked back.
+- **Is that copy private?**
+
+On `[SAFE]`, continue. On `[UNSAFE]`, **stop** and walk the user through
+`README.md` → "Getting your own copy" — they need their own private repo before
+any of this is worth doing. On `[UNKNOWN]` the check could not tell (no remote,
+a non-GitHub host, or `gh` unavailable); ask the user to confirm both facts
+directly, and do not guess on their behalf.
+
+Do not skip this because the repo "looks fine." The failure is silent at the
+time and permanent afterwards.
+
 ## 1. Push for hard rules
 
 Users do not volunteer "one page" or "no first person" — they complain after seeing
@@ -57,3 +82,8 @@ two files shape every resume the system will ever produce.
 - Write to `master/` — that is `build-master`, even during setup.
 - Record a style preference as an adjective.
 - Skip calibration and guess at `max_lines`.
+- Write anything personal before step 0 has returned `[SAFE]`, or before the
+  user has confirmed the two facts themselves on `[UNKNOWN]`.
+- Put the user's real name, address, email, or employers into anything outside
+  `master/`, `preferences/`, and `library/` — test fixtures and examples included.
+  Those files are shared; those three directories are not.
