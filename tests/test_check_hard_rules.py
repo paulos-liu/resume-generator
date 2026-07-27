@@ -56,6 +56,29 @@ class TestCheckHardRules(unittest.TestCase):
             path.write_text("- My team reduced latency 30%.\n")
             self.assertIn("first_person", [f.kind for f in check(path, RULES)])
 
+    def test_job_level_numeral_is_not_first_person(self):
+        # "Software Engineer I" is a level, not the pronoun. Flagging it forces
+        # anyone with a levelled title to write around it -- and a promotion
+        # sequence is usually the clearest seniority signal a resume has.
+        for text in ("### Software Engineer I to III, Lytx — Sep 2021\n",
+                     "- Built it while titled Software Engineer I\n",
+                     "### Analyst I, Acme\n",
+                     "- Promoted from Level I to Level III\n"):
+            with self.subTest(text=text):
+                self.assertNotIn("first_person", kinds_for(text, RULES))
+
+    def test_real_first_person_still_flagged_near_a_title(self):
+        # The narrowing must not become a loophole.
+        for text in ("- I built the platform\n",
+                     "- The Product Owner and I shipped it\n",
+                     "- Worked on my own initiative\n",
+                     "- Engineer on our team\n"):
+            with self.subTest(text=text):
+                self.assertIn("first_person", kinds_for(text, RULES))
+
+    def test_roman_numerals_above_one_never_match(self):
+        self.assertNotIn("first_person", kinds_for("### Engineer II to III\n", RULES))
+
     def test_flags_over_budget_draft(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "draft.md"

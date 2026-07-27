@@ -1,0 +1,92 @@
+/* ATS-safe print stylesheet for resume rendering.
+ *
+ * Design constraints, in priority order:
+ *   1. Parseable. Single column, real text, no tables for layout, no icons, no
+ *      images, no multi-column CSS. An applicant tracking system that mangles
+ *      the parse loses you the job before a human reads a word, and no amount
+ *      of visual polish compensates.
+ *   2. Dense. One page is the budget, so vertical rhythm is tight and nothing
+ *      decorative earns space.
+ *   3. Boring on purpose. One font, black on white, no rules, no shading.
+ *
+ * Point sizes are the calibration surface: change them and max_lines in
+ * preferences/hard-rules.md is invalidated. Recalibrate rather than guess.
+ */
+
+@page {
+  size: Letter;
+  margin: 0.5in 0.6in;
+}
+
+html {
+  -webkit-print-color-adjust: exact;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 10.5pt;
+  line-height: 1.32;
+  color: #000;
+  background: #fff;
+  margin: 0;
+}
+
+/* Name */
+h1 {
+  font-size: 19pt;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  margin: 0 0 2pt;
+}
+
+/* Contact line — the paragraph immediately after the name */
+h1 + p {
+  font-size: 9.5pt;
+  margin: 0 0 9pt;
+}
+
+/* Section headings: Experience, Skills, Education */
+h2 {
+  font-size: 10pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin: 10pt 0 4pt;
+  padding-bottom: 1.5pt;
+  border-bottom: 0.6pt solid #000;
+}
+
+/* Role headings */
+h3 {
+  font-size: 10.5pt;
+  font-weight: 700;
+  margin: 7pt 0 2pt;
+}
+
+ul {
+  margin: 0;
+  padding-left: 14pt;
+  list-style-type: disc;
+}
+
+li {
+  margin: 0 0 2.5pt;
+  /* Justified text creates rivers at this measure and hurts nothing else. */
+  text-align: left;
+}
+
+p {
+  margin: 0 0 3pt;
+}
+
+/* Never strand a heading at the foot of a page, and never split a role's
+ * first bullet away from its heading. */
+h2, h3 {
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+li {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}

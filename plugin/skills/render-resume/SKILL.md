@@ -33,13 +33,30 @@ stale-reviewed, or since-invalidated draft defeats the gate.
 
 ## Render
 
-**Where the built-in `docx` skill is available** (Cowork, claude.ai): use it to
-produce `library/<dir>/resume.docx`, following `templates/standard.md` for section
-order and heading structure.
+**PDF is the default deliverable.** It is what a human reads, it renders
+identically everywhere, and it cannot be edited by accident in transit.
 
-**Where it is not** (Claude Code): leave `draft.md` as the deliverable and say so
-plainly — "no document skill available here, so this is Markdown; open it in Cowork
-to export." Do not fail the run, and do not hand-roll a converter.
+**Where Chrome or Chromium is installed** — produce `library/<dir>/resume.pdf`:
+
+    python3 scripts/render_pdf.py library/<dir>/draft.md \
+        --out library/<dir>/resume.pdf --measure
+
+`--measure` reports the real page count, which is the only trustworthy check
+against the length rule. The stylesheet is `templates/print.css`: single column,
+one font, no shading. Deliberately plain — a resume that renders beautifully and
+parses badly loses before a human sees it.
+
+**Where the built-in `docx` skill is available** (Cowork, claude.ai): use it to
+produce `library/<dir>/resume.docx` as well, following `templates/standard.md`
+for section order and heading structure. Offer it alongside the PDF rather than
+instead of it — some application portals require `.docx`, and some parse it more
+reliably than PDF.
+
+**Where neither exists:** leave `draft.md` as the deliverable and say so plainly
+— "no renderer available here, so this is Markdown; open it in Cowork to
+export." Do not fail the run, and do not hand-roll a converter. `render_pdf.py`
+is not a hand-rolled converter: it drives a real browser engine, and it raises
+rather than guessing when it meets markup it does not handle.
 
 ## Verify the page count
 

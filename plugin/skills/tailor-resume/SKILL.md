@@ -73,8 +73,13 @@ figures with an explicit marker, e.g. `Cut build time ~40% (est.)`. Restating th
 as `Cut build time 40%` is not compression — it is an unsupported claim. The
 marker is the caveat that makes the number honest; keeping the digit while
 dropping the marker turns an estimate into a hard number the user cannot back up
-in an interview. Carry the marker (or an equivalent qualifier — "roughly", "an
-estimated") into the rephrased bullet every time the source carries it. This is
+in an interview.
+
+**Carry the literal `(est.)` string.** `check_provenance.py` matches that exact
+marker, so "an estimated $100K+" reads as honest prose to a human and as a
+dropped qualifier to the checker — it will fail. If a rendering without the
+parenthetical is genuinely wanted, change the checker deliberately; do not work
+around it in a draft. This is
 the same failure as dropping "Team of 4" to get "teams" — a claim made broader by
 removing the word that limited it — and it is checked the same way: mechanically,
 by `scripts/check_provenance.py`'s `estimate_upgraded` finding.
@@ -184,9 +189,46 @@ Leave unanswered gaps out of the resume. Honestly absent beats plausibly stretch
 That includes a bullet a fact finding already removed in step 8 — it stays out
 unless a fresh, properly sourced bullet earns its way back in.
 
+## 10. Recruiter impressions (advisory, terminal)
+
+Once the facts have settled — review clean, gaps resolved — dispatch the
+`recruiter-impressions` agent for a read on how the page actually lands.
+
+It gets the rendered resume and **nothing else**: no `master/`, no
+`preferences/`, no posting, no context from this conversation. That blindness is
+the whole value. Do not helpfully brief it.
+
+**Its output is advice, not findings.** It never writes `review.json`, never
+blocks a render, and never enters the review loop of step 8. Wiring it into that
+loop reintroduces exactly the failure `resume-reviewer` refuses style checks to
+avoid: iterating toward a passing style verdict grinds bullets toward vagueness.
+
+**Filtering its suggestions is your job, not its.** Being blind, it will
+sometimes propose something the master cannot support — a stronger verb than the
+source carries, a range resolved to its flattering end, a number that does not
+exist. Check every suggested rewrite against the cited master bullet before
+applying it. Take the lesson, not the literal wording.
+
+Then route what the user agrees with, and only what they agree with:
+
+| Feedback is about | Goes to |
+|---|---|
+| Phrasing, ordering, voice | `preferences/style.md`, prefer/avoid |
+| A bullet the user rewrites by hand | `preferences/style.md` as an exemplar, verbatim |
+| Decidable by parsing (length, a banned word) | `preferences/hard-rules.md` |
+| "Add a number here" | `build-master`, as a gap question |
+
+That last row is the one that will be got wrong. A recruiter's reflex is to ask
+for quantification, and some bullets have no measurement by record. Routing that
+to `preferences/` would encode *invent metrics* as house style. It is a fact gap
+or it is nothing.
+
 ## Never
 
 - Write to `master/`, including gap answers. Those go through `build-master`.
+- Let `recruiter-impressions` output become a finding, gate a render, or brief
+  itself on the master.
+- Apply a recruiter rewrite without checking it against the cited master bullet.
 - Emit a bullet without a source ID.
 - Drop a number or qualifier to make a claim easier to support.
 - Drop an `(est.)` marker while keeping the number it qualified.

@@ -20,6 +20,29 @@ from resumelib.rules import Rules, load_rules  # noqa: E402
 
 FIRST_PERSON_RE = re.compile(r"\b(I|me|my|mine|we|our|us)\b", re.IGNORECASE)
 
+# A bare "I" is ambiguous: the pronoun, or the level in "Software Engineer I".
+# Flagging the numeral would force anyone whose title carries a level to write
+# around it, and a promotion sequence (I -> II -> III) is usually the clearest
+# seniority signal a resume has -- losing that to a false positive is the wrong
+# trade. Only "I" needs disambiguating: "II" and "III" never match the pronoun
+# pattern, because \bI\b cannot match where another I follows. The preceding
+# word settles it, since the pronoun does not follow a job-title noun.
+LEVEL_NOUNS = frozenset((
+    "engineer", "developer", "analyst", "scientist", "designer", "architect",
+    "manager", "consultant", "associate", "specialist", "administrator",
+    "programmer", "technician", "level", "grade", "tier", "band",
+))
+_WORD_BEFORE_RE = re.compile(r"([A-Za-z]+)\W*$")
+
+
+def _is_job_level(text: str, match) -> bool:
+    """True when this match is a job level ("Engineer I"), not the pronoun."""
+    if match.group(0) != "I":
+        return False
+    before = _WORD_BEFORE_RE.search(text[:match.start()])
+    return bool(before) and before.group(1).lower() in LEVEL_NOUNS
+
+
 STREET_SUFFIXES = (
     "Ave|Avenue|St|Street|Rd|Road|Blvd|Boulevard|Dr|Drive|Ln|Lane|Way|Ct|Court|"
     "Pl|Place|Ter|Terrace|Cir|Circle|Hwy|Highway|Pkwy|Parkway|Sq|Square"
@@ -76,6 +99,8 @@ def check(draft_path: Path, rules: Rules) -> list:
 
     if rules.ban_first_person:
         for match in FIRST_PERSON_RE.finditer(text):
+            if _is_job_level(text, match):
+                continue
             findings.append(Finding("first_person", f"first person: {match.group(0)!r}"))
 
     present = {verb.lower() for verb in rules.present_tense_verbs}

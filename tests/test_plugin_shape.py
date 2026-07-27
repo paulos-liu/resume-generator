@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN = ROOT / "plugin"
 
 REQUIRED_SKILLS = ["build-master", "setup", "tailor-resume", "render-resume"]
-REQUIRED_AGENTS = ["resume-reviewer"]
+REQUIRED_AGENTS = ["resume-reviewer", "recruiter-impressions"]
 
 
 class TestPluginShape(unittest.TestCase):
@@ -34,6 +34,41 @@ class TestInterviewWiring(unittest.TestCase):
     def test_skill_points_at_the_interview_protocol(self):
         skill = (PLUGIN / "skills" / "build-master" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("interview.md", skill)
+
+
+class TestRecruiterImpressionsWiring(unittest.TestCase):
+    """The recruiter agent's value is that it is blind and advisory. Both
+    properties are one helpful edit away from being lost, so both are guarded."""
+
+    AGENT = PLUGIN / "agents" / "recruiter-impressions.md"
+
+    def test_tailor_resume_dispatches_it(self):
+        skill = (PLUGIN / "skills" / "tailor-resume" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("recruiter-impressions", skill)
+
+    def test_agent_never_references_the_master(self):
+        # It must see the resume and nothing else. The likely future edit is
+        # granting it master/ access to cut down dead-end suggestions -- which
+        # turns an outside reader into another insider, the one perspective the
+        # rest of the system already has. Fail the build instead.
+        text = self.AGENT.read_text(encoding="utf-8")
+        offenders = [line.strip() for line in text.splitlines()
+                     if "master/" in line and "source-of-truth" not in line]
+        self.assertEqual(offenders, [], f"agent references master/: {offenders}")
+
+    def test_agent_states_it_cannot_block_a_render(self):
+        # Advisory-only is the property that keeps it from becoming the style
+        # judge resume-reviewer deliberately refuses to be.
+        text = self.AGENT.read_text(encoding="utf-8").lower()
+        self.assertIn("review.json", text)
+        self.assertIn("advice, not findings", text)
+
+    def test_agent_is_not_hardcoded_to_technology(self):
+        # It ships to anyone, so it must infer the field from the page rather
+        # than assume software.
+        text = self.AGENT.read_text(encoding="utf-8").lower()
+        self.assertIn("field", text)
+        self.assertNotIn("backend and platform engineers", text)
 
 
 class TestMarketplaceManifest(unittest.TestCase):

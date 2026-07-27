@@ -3,3 +3,7 @@ __pycache__/
 .DS_Store
 library/*/resume.docx
 library/*/resume.pdf
+
+# Rendered output — regenerate with scripts/render_pdf.py
+library/*/resume.pdf
+library/*/draft.pdf

@@ -55,6 +55,15 @@ check.
   before/after pair) -- see `## Pacing` for why that lets the ladder run rung after
   rung without breaking the one-open-question rule. Accept a defensible range or
   estimate; **flag it `(est.)`** and never invent a figure.
+- **Never let a question bucket become the fact.** Offering "2-4 people",
+  "under 15", or "a handful (2-5)" as multiple-choice options is an elicitation
+  device, not a measurement. The answer to record is the *number*, so ask the
+  follow-up: "you picked 2-4 -- what is it exactly?" A range belongs in the
+  master only when the underlying quantity genuinely varies (a regime change
+  like "weeks to months"), never as an artifact of how the question was posed.
+  The failure chain is short and real: a bucketed range in the master becomes a
+  range on the page, where it reads as imprecision -- or a later draft resolves
+  it to the flattering end and a reviewer correctly rules it unsupported.
 - **The "why did that matter?" ladder.** Climb from a flat fact to its business
   impact until it reaches a terminal value -- "migrated the database" becomes "team
   stopped losing a day a week -> shipped the launch on time."
