@@ -36,6 +36,26 @@ The repo ships with `master/` empty. Everything personal you add stays in your
 private copy; `git log master/` then becomes an audit trail of every claim you have
 ever made and when you added it.
 
+**Why this matters more than it looks.** `master/` ends up holding your real name,
+real employers, and real dates, and git history is published along with the tree —
+so a repo that turns out to be public or shared cannot be fixed by deleting the
+files later. The commits still have them.
+
+`setup` refuses to proceed until this is settled:
+
+    python3 scripts/check_private.py
+
+It answers two questions and fails closed on both — whether this is your own copy
+rather than the shared upstream repo, and whether that copy is private. `SAFE`
+continues; `UNSAFE` stops; `UNKNOWN` means it could not tell (no remote, a
+non-GitHub host, or `gh` unavailable) and you will be asked directly. Being
+private is evidence about who can read a repo and no evidence about whose copy it
+is, so the two are checked separately.
+
+If you publish your own variant of this tool, set `UPSTREAM_REPOS` in
+`scripts/check_private.py` to its `owner/name`. Left empty, the copy question is
+undecidable and every user gets asked.
+
 ---
 
 ## Setup in Claude Code
@@ -100,7 +120,8 @@ exactly why the capability ships as a repo plugin rather than as personal skills
 
 ## First run
 
-1. **`setup`** — elicits your hard rules, harvests style exemplars from writing you
+1. **`setup`** — confirms this is your own private copy before anything personal is
+   written, then elicits your hard rules, harvests style exemplars from writing you
    already like, and calibrates the page budget. It asks for examples rather than
    asking you to describe your "tone", because descriptions of tone do not survive
    contact with a draft.

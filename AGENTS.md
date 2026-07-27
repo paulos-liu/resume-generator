@@ -13,6 +13,17 @@ Canonical. `CLAUDE.md` points here so the two cannot drift.
 4. **Every drafted bullet cites a live master bullet.** Uncited is a hard failure.
 5. **Deterministic checks are scripts, never prompts.** If it can be parsed, it is
    not a judgement call.
+6. **Personal facts belong only in the user's own private copy.** `setup` runs
+   `scripts/check_private.py` first; anything other than `SAFE` stops the run
+   until the user resolves it. This binds every component, not only `setup` —
+   `build-master` writes names, employers and dates, and `tailor-resume` writes
+   them into `library/`, and neither runs the script itself. If you are about to
+   write personal data and have no evidence this is the user's own private repo,
+   ask before writing.
+7. **Real personal data never leaves `master/`, `preferences/`, and `library/`.**
+   Those three are the user's; everything else is shared. Test fixtures,
+   examples, and documentation use an invented persona — never the user's real
+   name, address, email, or employers.
 
 ## Feedback routing
 
