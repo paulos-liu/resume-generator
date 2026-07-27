@@ -1,8 +1,33 @@
 import unittest
 
-from scripts.check_private import SAFE, UNKNOWN, UNSAFE, classify
+from scripts.check_private import (SAFE, UNKNOWN, UNSAFE, UPSTREAM_REPOS,
+                                   classify)
 
 UPSTREAM = ("owner/resume-generator",)
+
+
+class TestShippedUpstream(unittest.TestCase):
+    def test_upstream_is_configured(self):
+        # An empty UPSTREAM_REPOS degrades every private repo to UNKNOWN, which
+        # is honest but turns the check into a prompt to ask the user. Guard the
+        # shipped value so that degradation is never silent.
+        self.assertTrue(UPSTREAM_REPOS, "UPSTREAM_REPOS is empty")
+
+    def test_upstream_entries_are_owner_slash_name(self):
+        # Matched as a substring of the origin URL, so `owner/name` catches both
+        # https://github.com/owner/name.git and git@github.com:owner/name.git.
+        # A bare name or a full URL would match too loosely or too strictly.
+        for entry in UPSTREAM_REPOS:
+            with self.subTest(entry=entry):
+                self.assertEqual(entry.count("/"), 1, entry)
+                self.assertNotIn("://", entry)
+                self.assertFalse(entry.endswith(".git"), entry)
+
+    def test_the_real_upstream_url_is_recognised(self):
+        for url in ("https://github.com/paulos-liu/resume-generator.git",
+                    "git@github.com:paulos-liu/resume-generator.git"):
+            with self.subTest(url=url):
+                self.assertEqual(classify(url, "PRIVATE")[0], UNSAFE)
 
 
 def status(remote, visibility, upstream=UPSTREAM):

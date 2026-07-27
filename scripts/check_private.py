@@ -28,15 +28,16 @@ SAFE, UNSAFE, UNKNOWN = "SAFE", "UNSAFE", "UNKNOWN"
 
 GITHUB_HOSTS = ("github.com",)
 
-# Substrings identifying the shared upstream repo this tool is distributed from,
-# e.g. ("owner/resume-generator",). Fill this in when the tool is published.
+# Substrings identifying the shared upstream repo this tool is distributed from.
+# Matched against the origin URL, so the `owner/name` form catches both the
+# HTTPS and the SSH spelling of the same remote.
 #
-# While this is empty the "am I in the upstream repo?" question is UNDECIDABLE,
-# not merely unchecked: a private repo you own looks identical to the original
-# private repo you own. The script reports UNKNOWN in that case rather than
-# SAFE. Being private is evidence about who can read the repo; it is no evidence
-# at all about whether it is your copy.
-UPSTREAM_REPOS: tuple = ()
+# If this is ever emptied, the "am I in the upstream repo?" question becomes
+# UNDECIDABLE rather than merely unchecked: a private repo you own looks
+# identical to the original private repo you own. The script reports UNKNOWN in
+# that case rather than SAFE, because being private is evidence about who can
+# read a repo and no evidence at all about whether it is your copy.
+UPSTREAM_REPOS: tuple = ("paulos-liu/resume-generator",)
 
 
 def _run(cmd: list) -> str | None:
