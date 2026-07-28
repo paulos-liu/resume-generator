@@ -18,3 +18,12 @@ rewritten by hand.
 - avoid "responsible for X" -> prefer "did X, producing Y"
 - name the scale (users, requests, dollars, headcount) whenever it is known
 - one claim per bullet; split compound bullets
+- when trimming a bullet to fit, cut in this order: keep the action verb, keep
+  the metric, cut the context last — never cut a qualifier that limits a claim
+- when a posting states a minimum years figure, mirror the posting's figure
+  ("5+ years") rather than a larger actual total — a truthful lower bound that
+  matches what the screen is looking for; never state more than is true
+- match interpersonal framing to the field: for technical roles, state people
+  skills as concrete capabilities ("translates technical trade-offs into clear
+  direction for non-technical stakeholders"), not personality traits; in
+  relationship-led fields the interpersonal layer can lead

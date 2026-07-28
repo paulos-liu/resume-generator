@@ -24,6 +24,8 @@ class Rules:
     ban_street_address: bool = False
     required_link_hosts: list = field(default_factory=list)
     require_skills_line: bool = False
+    ban_em_dash: bool = False
+    max_bullet_words: int = 0
 
 
 def load_rules(path: Path) -> Rules:
@@ -40,4 +42,6 @@ def load_rules(path: Path) -> Rules:
         ban_street_address=data.get("ban_street_address", False),
         required_link_hosts=data.get("required_link_hosts", []),
         require_skills_line=data.get("require_skills_line", False),
+        ban_em_dash=data.get("ban_em_dash", False),
+        max_bullet_words=data.get("max_bullet_words", 0),
     )

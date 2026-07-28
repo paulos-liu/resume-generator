@@ -133,6 +133,58 @@ class TestRequiredLinkHosts(unittest.TestCase):
         self.assertEqual(kinds_for("# Jordan Rivera\n", Rules()), [])
 
 
+class TestBanEmDash(unittest.TestCase):
+    RULES = Rules(ban_em_dash=True)
+
+    def test_flags_em_dash_in_a_bullet(self):
+        text = "- Shipped the platform — twice\n"
+        self.assertIn("em_dash", kinds_for(text, self.RULES))
+
+    def test_flags_em_dash_in_prose(self):
+        text = "Summary line about impact — with a dash.\n"
+        self.assertIn("em_dash", kinds_for(text, self.RULES))
+
+    def test_headings_are_exempt(self):
+        # templates/standard.md separates title from dates with an em dash;
+        # banning it there would flag every experience heading.
+        text = "### Engineer, Acme — 2019–2022\n\n- Shipped a thing\n"
+        self.assertEqual(kinds_for(text, self.RULES), [])
+
+    def test_en_dash_date_range_is_not_flagged(self):
+        text = "- Ran the 2019–2022 migration program\n"
+        self.assertEqual(kinds_for(text, self.RULES), [])
+
+    def test_off_by_default(self):
+        text = "- Shipped the platform — twice\n"
+        self.assertEqual(kinds_for(text, Rules()), [])
+
+
+class TestMaxBulletWords(unittest.TestCase):
+    RULES = Rules(max_bullet_words=10)
+
+    def test_flags_bullet_over_budget(self):
+        text = "- " + " ".join(["word"] * 11) + "\n"
+        self.assertIn("long_bullet", kinds_for(text, self.RULES))
+
+    def test_allows_bullet_at_budget(self):
+        text = "- " + " ".join(["word"] * 10) + "\n"
+        self.assertEqual(kinds_for(text, self.RULES), [])
+
+    def test_counts_wrapped_continuation_lines_as_one_bullet(self):
+        # A bullet's wrapped continuation belongs to the bullet; counting the
+        # lines separately would let any length hide behind a line break.
+        text = "- " + " ".join(["word"] * 6) + "\n  " + " ".join(["word"] * 6) + "\n"
+        self.assertIn("long_bullet", kinds_for(text, self.RULES))
+
+    def test_prose_and_headings_are_not_bullets(self):
+        text = "A summary line of " + " ".join(["many"] * 15) + " words\n"
+        self.assertEqual(kinds_for(text, self.RULES), [])
+
+    def test_off_by_default(self):
+        text = "- " + " ".join(["word"] * 80) + "\n"
+        self.assertEqual(kinds_for(text, Rules()), [])
+
+
 class TestRequireSkillsLine(unittest.TestCase):
     RULES = Rules(require_skills_line=True)
 

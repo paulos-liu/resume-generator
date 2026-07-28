@@ -15,8 +15,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from resumelib.draft import Finding  # noqa: E402
+from resumelib.draft import Finding, load_draft_bullets  # noqa: E402
 from resumelib.rules import Rules, load_rules  # noqa: E402
+
+EM_DASH = "—"
 
 FIRST_PERSON_RE = re.compile(r"\b(I|me|my|mine|we|our|us)\b", re.IGNORECASE)
 
@@ -134,6 +136,28 @@ def check(draft_path: Path, rules: Rules) -> list:
     if rules.require_skills_line and not _skills_section_has_content(lines):
         findings.append(Finding(
             "missing_skills_line", "no Skills section with content"))
+
+    if rules.ban_em_dash:
+        # Headings are exempt: templates/standard.md itself separates title
+        # from dates with an em dash. The ban targets sentence punctuation in
+        # bullets and prose, where the dash reads as machine-written filler.
+        for line in lines:
+            if line.lstrip().startswith("#"):
+                continue
+            if EM_DASH in line:
+                findings.append(Finding(
+                    "em_dash",
+                    f"em dash outside a heading: {line.strip()[:60]!r} "
+                    "-- rewrite with a comma or split the sentence"))
+
+    if rules.max_bullet_words:
+        for bullet in load_draft_bullets(draft_path):
+            count = len(bullet.split())
+            if count > rules.max_bullet_words:
+                findings.append(Finding(
+                    "long_bullet",
+                    f"bullet is {count} words, budget is {rules.max_bullet_words}: "
+                    f"{bullet[:60]!r}..."))
 
     return findings
 

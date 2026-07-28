@@ -7,7 +7,8 @@ from scripts.check_manifest import check
 ROOT = Path(__file__).resolve().parent.parent
 PLUGIN = ROOT / "plugin"
 
-REQUIRED_SKILLS = ["build-master", "setup", "tailor-resume", "render-resume"]
+REQUIRED_SKILLS = ["build-master", "setup", "tailor-resume", "render-resume",
+                   "write-cover-letter", "outreach-email"]
 REQUIRED_AGENTS = ["resume-reviewer", "recruiter-impressions"]
 
 
