@@ -11,6 +11,9 @@ Canonical. `CLAUDE.md` points here so the two cannot drift.
 3. **Bullet IDs are append-only.** Never reused, never renumbered. Retract by
    moving a bullet under `## Retired`; never delete.
 4. **Every drafted bullet cites a live master bullet.** Uncited is a hard failure.
+   Companion artifacts — cover letters, outreach emails — are bound the same way:
+   every claim they make about the user restates a cited bullet from that
+   application's reviewed draft.
 5. **Deterministic checks are scripts, never prompts.** If it can be parsed, it is
    not a judgement call.
 6. **Personal facts belong only in the user's own private copy.** `setup` runs

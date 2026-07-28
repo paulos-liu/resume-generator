@@ -138,11 +138,20 @@ Share a job description and ask for a tailored resume. The system will:
 
 1. Extract the job's requirements and match each to your master resume.
 2. Draft only from what matches, citing a source for every bullet.
-3. Review the draft in an isolated context against your master and hard rules.
+3. Review the draft in an isolated context against your master and hard rules,
+   and report whether the job's own vocabulary — what a keyword screen matches
+   on — actually surfaces in the draft.
 4. Ask you about anything the job wants that your master does not cover — and write
    your answers back through build mode, so the master gets richer with every job.
 5. Render an approved draft, and offer an interview prep sheet tracing every claim
    back to the fact behind it.
+
+Once an application has a reviewed draft, two companion skills work from it:
+**`write-cover-letter`** and **`outreach-email`** (hiring manager, recruiter,
+skip-level, and peer variants). Both draw every claim from the tailored
+resume's cited bullets — a letter or email can restate what the resume says,
+never outrun it — and both save their output into the same
+`library/<application>/` directory as the resume they accompany.
 
 ## Where things live
 
@@ -168,4 +177,6 @@ No dependencies; Python 3.9+ standard library only.
 - `docs/superpowers/specs/2026-07-24-resume-assistant-design.md` — the system
 - `docs/superpowers/specs/2026-07-24-master-resume-interview-design.md` — interview mode
 - `docs/superpowers/specs/2026-07-24-extraction-depth-design.md` — timeline coverage
+- `docs/superpowers/specs/2026-07-28-companion-artifacts-design.md` — cover
+  letters, outreach emails, and the keyword report
 - `AGENTS.md` — the standing rules every component obeys

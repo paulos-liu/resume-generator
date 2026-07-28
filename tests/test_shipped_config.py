@@ -12,6 +12,8 @@ class TestShippedConfig(unittest.TestCase):
         self.assertGreater(rules.max_lines, 0)
         self.assertTrue(rules.ban_first_person)
         self.assertIn("spearheaded", rules.banned_words)
+        self.assertTrue(rules.ban_em_dash)
+        self.assertGreater(rules.max_bullet_words, 0)
 
     def test_no_word_is_both_banned_and_a_filler_adverb(self):
         rules = load_rules(ROOT / "preferences" / "hard-rules.md")

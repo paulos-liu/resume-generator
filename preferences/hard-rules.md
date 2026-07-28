@@ -14,9 +14,27 @@ rule here is enforced and a rule there is only ever applied.
   "ban_first_person": true,
   "filler_adverbs": ["very", "really", "significantly", "substantially", "highly"],
   "present_tense_verbs": ["manage", "lead", "build", "own", "drive", "maintain",
-                          "develop", "support"]
+                          "develop", "support"],
+  "ban_em_dash": true,
+  "max_bullet_words": 40
 }
 ```
+
+## Why em dashes are banned
+
+An em dash in bullet or summary prose reads as machine-written filler, and some
+screeners treat it as exactly that. The check exempts headings — the shipped
+template itself separates a role title from its dates with one — and says
+nothing about the en dash inside a date range. Rewrite flagged sentences with a
+comma, or split them.
+
+## Why `max_bullet_words` is 40
+
+A bullet longer than roughly 40 words wraps past two rendered lines (Calibri
+11pt, standard margins) and stops being skimmable. When trimming to fit, cut in
+this order: keep the action verb, keep the metric, cut the context last — see
+`style.md`. Never satisfy the budget by dropping a qualifier that limits a
+claim; that is a provenance violation, not a trim.
 
 ## Why `max_lines` is 42
 

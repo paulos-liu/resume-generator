@@ -68,6 +68,12 @@ drafted bullet; dropping it is not dropping a qualifier.
 Apply `preferences/style.md`: match the exemplars' voice, follow the prefer/avoid
 list. Obey every rule in `preferences/hard-rules.md`.
 
+**The Skills section is the keyword surface — and it obeys the match table.**
+Populate it with the job's own vocabulary, but only terms whose requirement
+found a master match in step 3. A NO MATCH term never appears there: a skills
+line is a claim like any other, and listing an unmatched keyword is invention
+with extra steps.
+
 **Never drop an `(est.)` marker.** `build-master`'s interview mode writes uncertain
 figures with an explicit marker, e.g. `Cut build time ~40% (est.)`. Restating that
 as `Cut build time 40%` is not compression — it is an unsupported claim. The
@@ -112,6 +118,18 @@ dropped**. Silent truncation is the bad outcome.
 
 Fix anything they report before going further.
 
+Then run the keyword report:
+
+    python3 scripts/keyword_coverage.py library/<dir>
+
+It shows, per requirement, whether the job's own vocabulary surfaces in the
+draft — the words an applicant tracking system or a skimming recruiter would
+match on. It is a report, not a gate. For each MISSING or PARTIAL row on a
+**matched** requirement, either rephrase the supporting bullet toward the job's
+term (staying faithful to the source) or note why not — a bullet dropped for
+budget in step 6 is a legitimate reason. GAP rows are honest gaps: they feed
+step 9, and the draft must never be pushed to name them.
+
 ## 8. Review loop
 
 Dispatch the `resume-reviewer` agent. Route what it returns **by kind** — this is
@@ -120,7 +138,7 @@ where fact integrity is structurally enforced, not a refinement.
 | Finding kind | Route |
 |---|---|
 | `unsupported`, `uncited`, `unknown_source`, `retired_source` | **Exit the loop.** Becomes a gap question |
-| `over_budget`, `banned_word`, `first_person`, `filler_adverb`, `present_tense` | Fix and re-review |
+| `over_budget`, `banned_word`, `first_person`, `filler_adverb`, `present_tense`, `em_dash`, `long_bullet` | Fix and re-review |
 
 **Record the review durably, every time you dispatch the reviewer.** Save the
 JSON list it returns to a file (e.g. `library/<dir>/.review-findings.json`), then:
@@ -233,6 +251,8 @@ or it is nothing.
 - Drop a number or qualifier to make a claim easier to support.
 - Drop an `(est.)` marker while keeping the number it qualified.
 - Cover a gap by writing around it.
+- List a NO MATCH requirement's term in the Skills section, or let the keyword
+  report pressure a gap into the draft.
 - Leave a bullet in `draft.md` or `sources.json` after a fact finding routed it
   out of the review loop.
 - Skip recording `review.json` on any review iteration, including the clean one.
