@@ -7,3 +7,7 @@ library/*/resume.pdf
 # Rendered output — regenerate with scripts/render_pdf.py
 library/*/resume.pdf
 library/*/draft.pdf
+
+# Isolated workspaces and agent scratch — never committed
+.claude/worktrees/
+.superpowers/

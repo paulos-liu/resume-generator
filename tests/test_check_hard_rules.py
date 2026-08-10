@@ -60,7 +60,7 @@ class TestCheckHardRules(unittest.TestCase):
         # "Software Engineer I" is a level, not the pronoun. Flagging it forces
         # anyone with a levelled title to write around it -- and a promotion
         # sequence is usually the clearest seniority signal a resume has.
-        for text in ("### Software Engineer I to III, Lytx — Sep 2021\n",
+        for text in ("### Software Engineer I to III, Northwind Logistics — Sep 2021\n",
                      "- Built it while titled Software Engineer I\n",
                      "### Analyst I, Acme\n",
                      "- Promoted from Level I to Level III\n"):

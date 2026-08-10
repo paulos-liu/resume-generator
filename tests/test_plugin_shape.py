@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parent.parent
 PLUGIN = ROOT / "plugin"
 
 REQUIRED_SKILLS = ["build-master", "setup", "tailor-resume", "render-resume",
-                   "write-cover-letter", "outreach-email"]
+                   "write-cover-letter", "outreach-email", "batch-tailor"]
 REQUIRED_AGENTS = ["resume-reviewer", "recruiter-impressions"]
 
 
@@ -102,6 +102,40 @@ class TestMarketplaceManifest(unittest.TestCase):
         marketplace, _ = self._manifests()
         source = self.ROOT / marketplace["plugins"][0]["source"]
         self.assertTrue((source / ".claude-plugin" / "plugin.json").exists())
+
+
+class TestCareerOpsWiring(unittest.TestCase):
+    """career-ops onboarding is optional, and must stay downstream of the
+    privacy gate: cv.md carries the user's real employers."""
+
+    SETUP = PLUGIN / "skills" / "setup" / "SKILL.md"
+
+    def test_setup_offers_career_ops(self):
+        text = self.SETUP.read_text(encoding="utf-8")
+        self.assertIn("career-ops", text)
+        self.assertIn("export_cv_md.py", text)
+
+    def test_career_ops_section_comes_after_the_privacy_gate(self):
+        text = self.SETUP.read_text(encoding="utf-8")
+        self.assertLess(text.index("check_private.py"), text.index("career-ops"))
+
+    def test_setup_marks_career_ops_optional(self):
+        text = self.SETUP.read_text(encoding="utf-8")
+        section = text[text.index("career-ops"):]
+        self.assertIn("optional", section.lower())
+
+    def test_setup_guards_export_until_master_has_facts(self):
+        # Scoped to the career-ops section only (up to `## Never`), so this
+        # cannot pass on a stray "build-master" mention elsewhere in the
+        # file (e.g. the `## Never` list itself references it). Asserts on
+        # the guard sentence's own distinguishing text rather than the
+        # relative order of two substrings, so it still fails if the guard
+        # is removed and still passes if the guard is moved to lead the
+        # section.
+        text = self.SETUP.read_text(encoding="utf-8")
+        section = text[text.index("career-ops"):text.index("## Never")]
+        self.assertIn(
+            "Do not run step 3 before the master has facts in it", section)
 
 
 if __name__ == "__main__":

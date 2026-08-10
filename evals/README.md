@@ -10,6 +10,7 @@ SKILL.md or to the reviewer agent.
 - **faithfulness**: `tailor-resume` respects tailor boundaries; does not stretch adjacent experience.
 - **loop**: `tailor-resume` handles the feedback loop correctly; refusals and revisions.
 - **interview**: `build-master` interview mode fires its deterministic sub-routines (just-my-job counter-probe, quantification ladder, impact ladder) and enforces confirm-before-write — including against a blanket permission grant — starting from a thin master.
+- **batch**: `batch-tailor` collapses a gap shared by several jobs into one question, and keeps every `master/` write in the main agent.
 
 ## How to run
 
@@ -33,7 +34,7 @@ SKILL.md or to the reviewer agent.
    material already offered in a live conversation, not the routing trigger
    itself.
    > Note: `tests/fixtures/master` is intentionally smaller than tailor-resume's
-   > "refuse when the master is too thin" threshold (it has 3 entries / 7 live
+   > "refuse when the master is too thin" threshold (it has 4 entries / 7 live
    > bullets, against a threshold of 3 entries OR 8 live bullets — see
    > `scripts/check_master_thin.py`). That refusal step is out of scope for the
    > invention/faithfulness evals — skip it and run requirement-matching

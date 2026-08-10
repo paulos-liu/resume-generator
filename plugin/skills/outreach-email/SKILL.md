@@ -81,6 +81,16 @@ Point each metric and factual claim, including the Blurb and the signature
 metrics line, at the `draft.md` bullet it restates. No bullet, no claim. A
 missing fact the user wants to add routes through `build-master` first.
 
+## 5. Check for withheld terms
+
+    python3 scripts/check_redactions.py library/<dir> --master master
+
+This **reports, never rewrites**: whether to name a withheld term in an email
+that reaches a hiring team is the user's decision. If it returns a
+`redacted_term` finding, present it to the user — which term, and which
+variant it landed in — and let them choose to rephrase, remove it, or
+knowingly keep it. Do not silently edit or silently leave it yourself.
+
 ## Never
 
 - Draft outreach for a job with no reviewed application in `library/`.
@@ -91,3 +101,5 @@ missing fact the user wants to add routes through `build-master` first.
   variant.
 - Put the company or role name in the subject line.
 - Use an em dash, a banned word, or a filler adverb from `hard-rules.md`.
+- Resolve a `check_redactions.py` finding yourself instead of putting the
+  decision to the user.

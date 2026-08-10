@@ -77,6 +77,34 @@ date in the prose section beneath it.
 Show the user both finished files and get explicit sign-off before finishing. These
 two files shape every resume the system will ever produce.
 
+## 5. Offer career-ops — optional
+
+[career-ops](https://github.com/santifer/career-ops) scans public ATS boards,
+checks a posting is still live, and scores it against a CV. It is **optional**:
+everything here works without it. Offer it once; if the user declines, do not
+raise it again.
+
+If they want it:
+
+1. Clone it somewhere outside this repo:
+
+       git clone https://github.com/santifer/career-ops.git ~/Projects/career-ops
+
+2. Copy `config/profile.example.yml` to `config/profile.yml` there and fill in
+   targets, locations, and comp range. That is search preference, not resume
+   fact, so it lives there and not in `master/`.
+
+3. Generate its CV from the master:
+
+       python3 scripts/export_cv_md.py
+
+   `cv.md` is generated, never authored. Tell the user plainly: editing it by
+   hand creates a second source of truth, and every score after that describes
+   someone the drafts cannot cite.
+
+Do not run step 3 before the master has facts in it — `build-master` comes
+first. If `master/` is still empty, note the option and stop.
+
 ## Never
 
 - Write to `master/` — that is `build-master`, even during setup.

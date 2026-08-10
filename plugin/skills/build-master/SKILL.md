@@ -5,8 +5,10 @@ description: Add, enrich, correct, or retract facts in the master resume. Use wh
 
 # Build master
 
-You maintain `master/` — the single source of truth. **You are the only writer.**
-Every other component reads it.
+You maintain `master/` — the single source of truth. **You are the only
+writer**, including to `master/redactions.md`, the store of terms withheld
+from generated artifacts (see `AGENTS.md` invariant 1). Every other component
+reads it.
 
 ## The rule that matters
 
@@ -148,6 +150,26 @@ someone stretches to fit a job they want.
     - [2026-07-24] Kubernetes — asked during Stripe Backend application
 
 Commit as `master: record known gap — Kubernetes`.
+
+## Withholding a term
+
+When the user says not to name something — a customer, a codename, an
+employer they'd rather not surface — record it in `master/redactions.md`, one
+line per term:
+
+    - Acme Corp => a mid-size logistics client
+    - Project Chimera
+
+The format is `- term` or `- term => replacement`. A term with a replacement
+is substituted wherever it would otherwise be emitted into `cv.md` (the
+career-ops export); a bare term with no replacement has none declared. If a
+live master bullet names a withheld term with no replacement, the export
+**fails closed** — it emits nothing rather than leak the term — so give every
+withheld term a replacement unless the user genuinely wants the export
+blocked until one exists. Drafts are only ever reported on for a withheld
+term, never rewritten; naming it there is the user's call, not a script's.
+
+Commit as `master: add redaction — <term>`.
 
 ## Never
 

@@ -115,8 +115,17 @@ dropped**. Silent truncation is the bad outcome.
 
     python3 scripts/check_provenance.py library/<dir> --master master
     python3 scripts/check_hard_rules.py library/<dir>/draft.md
+    python3 scripts/check_redactions.py library/<dir> --master master
 
-Fix anything they report before going further.
+Fix anything `check_provenance.py` or `check_hard_rules.py` report before going
+further.
+
+`check_redactions.py` is different: it **reports, never rewrites**. Whether to
+name a withheld term on a document that reaches an employer is the user's
+decision, not a mechanical fix. If it returns a `redacted_term` finding,
+present it to the user — which term, and where it landed — and let them choose
+to rephrase or remove the bullet, or knowingly keep it. Do not silently edit
+or silently leave it yourself.
 
 Then run the keyword report:
 
@@ -256,3 +265,5 @@ or it is nothing.
 - Leave a bullet in `draft.md` or `sources.json` after a fact finding routed it
   out of the review loop.
 - Skip recording `review.json` on any review iteration, including the clean one.
+- Resolve a `check_redactions.py` finding yourself instead of putting the
+  decision to the user.

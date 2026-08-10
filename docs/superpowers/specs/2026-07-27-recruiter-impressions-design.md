@@ -83,10 +83,10 @@ agree with; only then is anything recorded, routed through the table already in
 
 The last row is the one that will be got wrong. A recruiter's reflex is to ask
 for quantification, and some bullets have no measurement behind them by record —
-`master/roles/lytx-swe3-b.md` states plainly that no before/after exists for the
-AI transformation work and that no draft may imply one. Routing "quantify this"
-to `preferences/` would encode *invent metrics* as a house style. It is a fact
-gap or it is nothing.
+`master/roles/northwind-staff-eng.md` states plainly that one line of work has
+no before/after by record and that no draft may imply one. Routing "quantify
+this" to `preferences/` would encode *invent metrics* as a house style. It is
+a fact gap or it is nothing.
 
 Ambiguous feedback follows the existing rule: ask, never guess.
 
@@ -121,5 +121,5 @@ The agent is a prompt, so the testable surface is wiring, mirroring the existing
 
 ## Porting
 
-The feature lands in `resume-generator`. `paulos-resume` carries its own copy of
-the tool and picks changes up by cherry-pick from the `upstream` remote.
+The feature lands in `resume-generator`. `<your-private-repo>` carries its own
+copy of the tool and picks changes up by cherry-pick from the `upstream` remote.

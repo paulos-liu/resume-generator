@@ -18,7 +18,8 @@ class TestLoadEntries(unittest.TestCase):
         ids = {e.id for e in load_entries(FIXTURES)}
         self.assertEqual(
             ids,
-            {"role.northwind.staff-eng", "project.ndjson-stream", "role.harbor.data-eng"},
+            {"role.northwind.staff-eng", "project.ndjson-stream", "role.harbor.data-eng",
+             "contact.primary"},
         )
 
 

@@ -158,12 +158,40 @@ never outrun it — and both save their output into the same
 | Path | What |
 |---|---|
 | `master/` | Your facts. Only `build-master` writes here |
+| `master/redactions.md` | Terms withheld from generated artifacts |
 | `preferences/hard-rules.md` | Enforced constraints |
 | `preferences/style.md` | Exemplars and prefer/avoid, applied at generation |
 | `library/` | Every application, with its provenance |
 | `plugin/` | The skills and the reviewer agent |
 | `scripts/` | Deterministic checks |
+| `scripts/check_redactions.py` | Reports `redactions.md` terms found in a draft, cover letter, or outreach email — never rewrites; the user decides |
+| `scripts/sync_shared.py` | Copies the tool (never `master/`, `preferences/`, `library/`) to the public repo, refusing if a file about to be published still names a real identifier |
 | `evals/` | Model-dependent checks — see `evals/README.md` |
+
+## career-ops
+
+[career-ops](https://github.com/santifer/career-ops) can front this system:
+it scans public ATS boards, checks a posting is still live, and scores it
+against a CV. Discovery, scoring, and tracking happen there; tailoring,
+review, and rendering happen here.
+
+No code is added to career-ops, so its `update-system.mjs` keeps working. Two
+things cross, both one-way:
+
+    python3 scripts/export_cv_md.py       # master/ -> career-ops/cv.md
+    python3 scripts/import_job.py 012     # a scored report -> library/<slug>/job.md
+
+`cv.md` is generated, never authored — `export_cv_md.py` is its only writer,
+the same rule that makes `build-master` the only writer to `master/`. It
+carries a digest of the master bullets it was built from; `--check` fails on
+drift, and `import_job.py` refuses to import against a stale one, because a
+score computed from an old CV is not evidence about the current master.
+
+Nothing flows back into `master/` automatically. A gap career-ops surfaces is a
+question for `build-master`, never a write.
+
+Point the scripts at your clone with `--career-ops`, `CAREER_OPS_ROOT`, or the
+default `~/Projects/career-ops`.
 
 ## Tests
 

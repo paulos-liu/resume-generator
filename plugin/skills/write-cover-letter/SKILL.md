@@ -67,6 +67,16 @@ at the `draft.md` bullet it restates. Anything that has no bullet gets removed
 or becomes a question for the user — and if the answer is a new fact, it routes
 through `build-master`, never straight into the letter.
 
+## 5. Check for withheld terms
+
+    python3 scripts/check_redactions.py library/<dir> --master master
+
+This **reports, never rewrites**: whether to name a withheld term on a letter
+that reaches an employer is the user's decision. If it returns a
+`redacted_term` finding, present it to the user — which term, and where it
+landed in the letter — and let them choose to rephrase, remove it, or
+knowingly keep it. Do not silently edit or silently leave it yourself.
+
 ## Feedback routing
 
 As everywhere (see `AGENTS.md`): phrasing and tone feedback goes to
@@ -81,3 +91,5 @@ ambiguous comment gets a clarifying question, not a guess.
 - Assume unstated facts about the role, team, or company.
 - Use an em dash, a banned word, or a filler adverb from `hard-rules.md`.
 - Exceed one page.
+- Resolve a `check_redactions.py` finding yourself instead of putting the
+  decision to the user.

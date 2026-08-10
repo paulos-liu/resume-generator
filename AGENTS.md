@@ -6,6 +6,19 @@ Canonical. `CLAUDE.md` points here so the two cannot drift.
 
 1. **`build-master` is the only writer to `master/`.** Every other component reads
    it. This includes gap answers, corrections, and recorded non-answers.
+   The one exception is `master/redactions.md`, which records terms withheld
+   from generated artifacts, each with an optional replacement. A replacement
+   is a substitution, not a subtraction — `apply_redactions` can write a
+   phrase into `cv.md` that no master bullet states, so the carve-out cannot
+   rest on "it never adds a claim." It rests instead on where that
+   substitution can reach: `cv.md` is a career-ops scoring artifact, never a
+   draft and never sent to an employer, and `check_redactions.py` only
+   *reports* withheld terms found in `draft.md`, cover letters, and outreach
+   emails — it never rewrites them. So a redaction's replacement text can
+   never reach a draft or any employer-facing artifact, and the reason for
+   this rule — no unconfirmed fact reaching what the user sends out — still
+   holds. Adding a term when the user says "do not name X" is still
+   `build-master`'s job.
 2. **No fact reaches `master/` without the user confirming it in conversation.**
    Not from an uploaded resume, not from inference.
 3. **Bullet IDs are append-only.** Never reused, never renumbered. Retract by
