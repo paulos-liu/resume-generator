@@ -83,3 +83,36 @@ class TestPeriodToken(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestContinuationBoundary(unittest.TestCase):
+    # An entry file is bullets plus prose. Prose paragraphs often contain
+    # markdown sub-lists, whose wrapped lines are indented exactly like a
+    # bullet's own continuation — so continuation has to stop at the blank
+    # line that ends the bullet, or the prose glues itself onto the last
+    # bullet and prints on the generated CV.
+    BODY = (
+        "- [a.b1] Authored the design docs.\n"
+        "  Team-level audience.\n"
+        "\n"
+        "**A drafting note about a different bullet.**\n"
+        "\n"
+        "- **The model came from another team.** He built the system that\n"
+        "  consumed it — telemetry in, parameters out.\n"
+    )
+
+    def test_blank_line_ends_a_bullets_continuation(self):
+        bullets = _parse_bullets(self.BODY)
+        self.assertEqual(bullets[0].text,
+                         "Authored the design docs. Team-level audience.")
+
+    def test_prose_sublist_does_not_become_a_bullet(self):
+        self.assertEqual([b.id for b in _parse_bullets(self.BODY)], ["a.b1"])
+
+    def test_heading_ends_a_bullets_continuation(self):
+        bullets = _parse_bullets(
+            "- [a.b1] Shipped it.\n"
+            "## Notes\n"
+            "  indented line under a heading\n"
+        )
+        self.assertEqual(bullets[0].text, "Shipped it.")

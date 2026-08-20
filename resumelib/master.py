@@ -61,12 +61,23 @@ def split_frontmatter(raw: str) -> tuple[dict, str]:
 def _parse_bullets(body: str) -> list:
     bullets: list = []
     retired = False
+    # The bullet a continuation line may still attach to. Cleared by the blank
+    # line or heading that closes the bullet, because an entry file's prose
+    # contains markdown sub-lists whose wrapped lines are indented exactly like
+    # a bullet's own continuation. Without the boundary those paragraphs glue
+    # themselves onto the last bullet and print on the generated CV.
+    open_bullet = None
     for line in body.splitlines():
         if RETIRED_HEADING_RE.match(line):
             retired = True
+            open_bullet = None
             continue
         if line.startswith("## "):
             retired = False
+            open_bullet = None
+            continue
+        if not line.strip():
+            open_bullet = None
             continue
         match = BULLET_RE.match(line)
         if match:
@@ -78,9 +89,12 @@ def _parse_bullets(body: str) -> list:
                 text = text[period_match.end():].strip()
             bullets.append(Bullet(id=match.group(1), text=text,
                                   retired=retired, period=period))
-        elif bullets and line.startswith("  ") and line.strip():
+            open_bullet = bullets[-1]
+        elif open_bullet is not None and line.startswith("  "):
             # Continuation of the previous bullet's wrapped text.
-            bullets[-1].text += " " + line.strip()
+            open_bullet.text += " " + line.strip()
+        else:
+            open_bullet = None
     return bullets
 
 
